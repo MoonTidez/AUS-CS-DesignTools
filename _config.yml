@@ -1,0 +1,10 @@
+# GitHub Pages (Jekyll) configuration.
+#
+# portable.html is the offline build, with the brand fonts embedded in the file.
+# Excluding it here means GitHub Pages will not publish it, so it cannot be
+# opened or bookmarked as a web page. It stays in the repository for download.
+#
+# Everything else — including licenses/ — is published, so the font licences
+# remain reachable from the live site as well as from the repository.
+exclude:
+  - portable.html

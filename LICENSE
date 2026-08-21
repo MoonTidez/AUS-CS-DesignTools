@@ -1,0 +1,112 @@
+Copyright © 2026 Ahnaf Abdur Rahman. All rights reserved.
+
+================================================================================
+1. OWNERSHIP
+================================================================================
+
+This software, its source code, design, and accompanying documentation
+(collectively, the "Software") are the exclusive property of Ahnaf Abdur Rahman
+(the "Owner").
+
+No rights are granted to any party except as expressly stated below. All rights
+not expressly granted are reserved by the Owner.
+
+================================================================================
+2. GRANT TO THE AMERICAN UNIVERSITY OF SHARJAH
+================================================================================
+
+The Owner grants to the American University of Sharjah ("AUS"), including its
+departments, offices, faculty, staff, and students acting in their institutional
+capacity, a perpetual, irrevocable, worldwide, royalty-free, non-exclusive
+licence to:
+
+  (a) use, execute, host, and display the Software for any institutional purpose;
+
+  (b) reproduce and distribute the Software internally within AUS;
+
+  (c) modify the Software and create derivative works from it, and use those
+      derivative works on the same terms as the Software itself; and
+
+  (d) create, use, distribute, publish, and commercially exploit any visual or
+      other output generated using the Software, without restriction and without
+      attribution to the Owner.
+
+This grant extends to third parties engaged by AUS — including contractors,
+agencies, and vendors — solely for work performed on behalf of AUS, and only for
+the duration of that engagement.
+
+This grant is perpetual and irrevocable. It survives any change in the Owner's
+relationship with AUS, any transfer of ownership of the Software, and the death
+or incapacity of the Owner.
+
+================================================================================
+3. LIMITS ON THE GRANT
+================================================================================
+
+The licence in Section 2 does not permit AUS to:
+
+  (a) sublicense, sell, rent, or otherwise transfer the Software to any party
+      outside AUS, except as permitted for engaged third parties under Section 2;
+
+  (b) publish or distribute the Software, or any derivative work of it, to the
+      general public or as an open-source project; or
+
+  (c) remove or alter this licence, the copyright notice, or any attribution to
+      the Owner contained in the Software.
+
+For the avoidance of doubt, these limits apply to the Software itself, not to its
+output. Output generated using the Software is governed by Section 2(d) and
+carries no restriction.
+
+================================================================================
+4. ALL OTHER PARTIES
+================================================================================
+
+No party other than AUS is granted any right to use, copy, modify, distribute, or
+create derivative works from the Software. Any such use requires prior written
+permission from the Owner.
+
+================================================================================
+5. THIRD-PARTY COMPONENTS
+================================================================================
+
+The Software embeds the following typefaces. They are not owned by the Owner, are
+not licensed under this document, and remain subject to their own licences:
+
+  Uncut Sans
+    Copyright (c) 2022 Kasper Nordkvist.
+    "Uncut Sans" is trademark of Kasper Nordkvist.
+    https://uncut.wtf/sans-serif/uncut-sans.html
+    SIL Open Font License, Version 1.1 — see licenses/OFL-UncutSans.txt
+
+  Geist Mono
+    Copyright (c) 2023 Vercel, in collaboration with basement.studio
+    SIL Open Font License, Version 1.1 — see licenses/OFL-GeistMono.txt
+
+Both are embedded unmodified. Nothing in this licence grants any right in those
+components beyond what their respective licences permit, and nothing in this
+licence places them under any other licence.
+
+No other third-party code, libraries, or assets are used. See
+THIRD-PARTY-NOTICES.md for details.
+
+================================================================================
+6. NO WARRANTY
+================================================================================
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT.
+
+IN NO EVENT SHALL THE OWNER BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY,
+WHETHER IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE, ARISING FROM, OUT OF, OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+The Owner is under no obligation to provide maintenance, support, updates, or
+modifications to the Software.
+
+================================================================================
+7. CONTACT
+================================================================================
+
+For permissions beyond the scope of this licence, contact Ahnaf Abdur Rahman.

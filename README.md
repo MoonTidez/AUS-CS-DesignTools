@@ -1,60 +1,106 @@
-# Grid Raster
+# AUS-CS-DesignTools
 
-An internal tool for the Department of Career Services. It converts an image
-into the brand's raster pattern and exports it as vector (SVG) or bitmap (PNG).
+Design tools for the Department of Career Services, American University of Sharjah.
 
-Everything runs inside your browser. Images are never uploaded anywhere.
+Everything here runs in the browser. Nothing to install, nothing uploaded, no accounts.
 
-## Using it
+**[Open Grid Raster →](https://YOUR-USERNAME.github.io/AUS-CS-DesignTools/)**
 
-Open `index.html` — either the published link, or by double-clicking the file
-on your computer. There is nothing to install.
+Working somewhere without internet? Download `portable.html` from this repository
+and open it from your computer — it is the same tool with the fonts built in.
+
+---
+
+## Grid Raster
+
+Converts an image into the Career Services raster pattern and exports it as vector
+or bitmap. Images are processed locally in your browser and never leave your machine.
+
+### Using it
 
 1. Drop, paste, or browse for an image.
-2. Pick a raster: **Node** (the plus glyph) or **Grid** (squares).
-3. Adjust scale and tone until it reads well.
-4. Choose colours from the brand palettes.
-5. Export SVG for print and layout, PNG for screen.
+2. Choose a raster — **Node** (the plus glyph) or **Grid** (squares).
+3. Set the scale, then adjust brightness, contrast, and gamma until the tones read well.
+4. Pick colours from the core brand or AUS palettes.
+5. Export.
 
-### Which export
+### Which export to use
 
-**SVG** is the real deliverable. It opens at true physical size in Illustrator,
-InDesign, Figma, and Inkscape, and stays sharp at any scale.
+**SVG** is the deliverable for anything printed or placed in a layout. It opens at
+true physical size in Illustrator, InDesign, Figma, and Inkscape, and stays sharp at
+any scale.
 
-**PNG** is for screens and quick shares. Node rasters use a 0.25pt hairline, and
-at large grid sizes that hairline falls below one pixel — the tool warns you when
-it does. If the warning appears and you need it crisp, use the SVG.
+**PNG** is for screens, slides, and quick shares. Node rasters are drawn with a
+0.25 pt hairline; on large grids that hairline falls below a single pixel and the
+image softens. The tool tells you when this happens — if you see that warning and
+need it crisp, export the SVG instead.
 
-## Publishing to GitHub Pages
+### Getting good results
 
-Only needed once.
+The raster is driven entirely by brightness, so what you feed it matters more than
+any setting. High-contrast images with the background removed work best — see
+"Preparing source images" in the brand deck for the two prompts that prepare a photo
+for either mode.
 
-1. Create a repository on github.com.
-2. Upload `index.html` to it (drag and drop works — no command line needed).
-3. Repository **Settings** → **Pages** → set Source to `main` branch, `/root`.
-4. Wait a minute. Your link appears at the top of that Pages settings screen.
+Gamma is the control that matters most. It redistributes the midtones without
+clipping the shadows or highlights, which is where halftone-style output usually
+lives or dies. Reach for it before brightness or contrast.
 
-To update the tool later, upload a new `index.html` over the old one.
+---
 
-Note: a GitHub Pages site is public to anyone with the link. The tool contains
-no student data, but the brand fonts are embedded and will be downloadable.
-Uncut Sans and Geist Mono are both freely licensed, so this is not a problem.
+## Maintaining this
 
-## Changing things
+There are two builds of the same tool:
 
-Brand values live in one place: the `:root` block at the top of the `<style>`
-section. Colours, spacing, and fonts are all there. Nothing further down the file
-hard-codes a colour.
+| File | For | Fonts |
+|---|---|---|
+| `index.html` | the published site | loaded from `fonts/` |
+| `portable.html` | offline use, downloaded and opened from disk | built into the file |
 
-Raster behaviour is controlled by the constants block near the top of the
-`<script>` section — cell sizes, stroke widths, and the thresholds that decide
-when a glyph fades out. Each has a comment explaining what it does.
+`portable.html` is deliberately not published — `_config.yml` excludes it, and the
+file itself refuses to run if it is ever served over the web. This keeps one
+canonical link for everyone.
 
-## Notes
+If you change the tool, change both. They are the same file apart from the two
+`@font-face` rules at the top and a short guard script.
 
-- Source images are capped at 4000px on the long edge, and the raster grid at
-  400 units on the short side. Both limits exist so the browser stays responsive.
-- Fonts are embedded in the file itself, so it works offline and cannot break
-  from a missing font path.
-- The tool works best on images prepared as described in the brand deck under
-  "Preparing source images" — high-contrast, background removed.
+**Brand values** — colours, spacing, fonts — live in the `:root` block at the top of
+the `<style>` section. Nothing below it hard-codes a colour. Rebranding means editing
+that one block.
+
+**Raster behaviour** — cell sizes, stroke widths, and the thresholds that decide when
+a glyph fades out — lives in the constants block at the top of the `<script>` section.
+Each constant has a comment explaining what it controls.
+
+Two limits exist to keep the browser responsive: source images are capped at 4000 px
+on the long edge, and the raster grid at 400 units on the short side. The tool tells
+you when it applies the second one.
+
+### Updating the published tool
+
+Upload a new `index.html` over the old one. GitHub Pages picks it up within a minute.
+Remember to upload the matching `portable.html` too.
+The header carries a build number so you can confirm which version you are looking at
+before reporting a problem.
+
+### Adding another tool later
+
+Move `index.html` into a folder named for the tool, and add a new root `index.html`
+listing both. Note that this changes the URL of the existing tool, so send the new
+link to anyone still using it.
+
+---
+
+## Licence and credits
+
+Copyright © 2026 Ahnaf Abdur Rahman. All rights reserved. The American University
+of Sharjah holds a perpetual, irrevocable, royalty-free licence to use and modify
+these tools — see [`LICENSE`](LICENSE) for the full terms.
+
+Anything you export from the tools is yours to use without restriction or
+attribution.
+
+Two typefaces are embedded under the SIL Open Font License 1.1: Uncut Sans
+(© 2022 Kasper Nordkvist) and Geist Mono (© 2023 Vercel, in collaboration with
+basement.studio). Full texts are in [`licenses/`](licenses/) and viewable inside
+each tool. See [`THIRD-PARTY-NOTICES.md`](THIRD-PARTY-NOTICES.md) for details.
