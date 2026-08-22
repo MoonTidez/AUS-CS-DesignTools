@@ -35,7 +35,7 @@ Embedded unmodified as `GeistMono_wght_.woff2`, version 1.700.
 
 ## Notes on compliance
 
-Both fonts are embedded as base64 inside `index.html`. Because that data can be
+Both fonts are embedded as base64 inside `portable.html`. Because that data can be
 extracted, this is treated as redistribution rather than mere embedding, and the
 full licence text plus copyright notice is included accordingly.
 
