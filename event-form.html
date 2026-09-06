@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Event Intake Dossier — Career Services</title>
+<style>
+/* ============================================================
+   FONTS — embedded unmodified under the SIL Open Font License 1.1.
+   Uncut Sans: Copyright (c) 2022 Kasper Nordkvist.
+     "Uncut Sans" is trademark of Kasper Nordkvist.
+     https://uncut.wtf/sans-serif/uncut-sans.html
+   Geist Mono: Copyright (c) 2023 Vercel, in collaboration with
+     basement.studio
+   Font files live in fonts/ and must travel with this page.
+   Full licence texts: see the Licences link in the tool, the
+   licenses/ folder, or http://scripts.sil.org/OFL
+   ============================================================ */
+@font-face{font-family:"Uncut Sans";src:url("fonts/UncutSans-Variable.woff2") format("woff2");font-weight:300 700;font-style:normal;font-display:swap}
+@font-face{font-family:"Geist Mono";src:url("fonts/GeistMono-Variable.woff2") format("woff2");font-weight:100 900;font-style:normal;font-display:swap}
+
+/* ============================================================
+   TOKENS — every brand value lives here and nowhere else.
+   ============================================================ */
+:root{
+  /* Core brand palette */
+  --anchor-blue:#307FE2;
+  --link-pink:#EB6FBD;
+  --open-mint:#47D7AC;
+  --signal-yellow:#E3E935;
+  --bright-orange:#EE5340;
+  --framework-gray:#B2B4B2;
+  --light-concrete:#D9D9D6;
+  --core-black:#1E2021;
+  --white:#FFFFFF;
+
+  /* UI roles */
+  --color-bg:var(--white);
+  --color-surface:var(--white);
+  --color-sunk:#F4F4F2;
+  --color-text:var(--core-black);
+  --color-muted:#6E7273;
+  --color-line:var(--light-concrete);
+  --color-line-strong:var(--core-black);
+  --color-accent:var(--anchor-blue);
+  --color-warn:#8A3A2C;
+  --color-warn-bg:#FDEDEA;
+
+  --font-ui:"Uncut Sans",system-ui,sans-serif;
+  --font-mono:"Geist Mono",ui-monospace,monospace;
+
+  --radius-control:0;
+  --track:1px;
+  --thumb:12px;
+
+  --space-1:4px;
+  --space-2:8px;
+  --space-3:12px;
+  --space-4:20px;
+  --space-5:32px;
+  --space-6:48px;
+
+  --ease-snap:cubic-bezier(.2,0,0,1);
+  --dur:120ms;
+  color-scheme:light;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family:var(--font-ui);
+  font-size:13px;
+  line-height:1.45;
+  color:var(--color-text);
+  background:var(--color-bg);
+  -webkit-font-smoothing:antialiased;
+}
+[hidden]{display:none !important}
+
+/* ---- masthead: mirrors the deck's running header ---- */
+.masthead{
+  display:flex;align-items:center;gap:var(--space-3);
+  height:34px;padding:0 var(--space-4);
+  border-bottom:1px solid var(--color-line-strong);
+  font-family:var(--font-mono);font-size:11px;font-weight:500;
+  letter-spacing:.09em;text-transform:uppercase;
+  white-space:nowrap;overflow:hidden;
+}
+.masthead .arrow{color:var(--color-muted)}
+.masthead .spacer{flex:1;min-width:var(--space-2)}
+.masthead .dim{color:var(--color-muted)}
+.masthead a{color:var(--color-text);text-decoration:none}
+.masthead a:hover{color:var(--color-accent)}
+
+.app{display:grid;grid-template-columns:316px 1fr;height:calc(100vh - 34px);height:calc(100dvh - 34px)}
+
+/* ---- panel ---- */
+.panel{
+  background:var(--color-surface);
+  border-right:1px solid var(--color-line-strong);
+  overflow-y:auto;
+}
+.group{padding:var(--space-4);border-bottom:1px solid var(--color-line)}
+.group:last-child{border-bottom:0}
+.group>h2{
+  margin:0 0 var(--space-3);
+  font-family:var(--font-mono);font-size:10px;font-weight:500;
+  letter-spacing:.11em;text-transform:uppercase;color:var(--color-muted);
+}
+.group.routing{background:var(--color-sunk)}
+.group.routing>h2{color:var(--color-text)}
+
+/* ---- fields ---- */
+.field{margin-bottom:var(--space-4)}
+.field:last-child{margin-bottom:0}
+.field-head{display:flex;justify-content:space-between;align-items:baseline;gap:var(--space-2);margin-bottom:var(--space-2)}
+.field-head label{font-size:12px}
+.field-help{font-size:11px;color:var(--color-muted);margin-top:var(--space-1)}
+.required:after{content:" *";color:var(--color-accent)}
+.readout{
+  font-family:var(--font-mono);font-size:11px;color:var(--color-text);
+  white-space:nowrap;font-variant-numeric:tabular-nums;
+}
+.readout.warn{color:var(--color-warn)}
+
+/* ---- text controls: flat, hairline, zero radius ---- */
+input[type=text],input[type=date],input[type=url],select,textarea{
+  width:100%;font:inherit;font-family:var(--font-ui);font-size:13px;
+  color:var(--color-text);background:var(--color-surface);
+  border:1px solid var(--color-line-strong);border-radius:0;
+  padding:7px 9px;
+}
+textarea{resize:vertical;min-height:64px;line-height:1.5}
+input::placeholder,textarea::placeholder{color:var(--color-muted)}
+:focus-visible{outline:2px solid var(--color-accent);outline-offset:1px}
+select{appearance:none;-webkit-appearance:none;
+  background-image:linear-gradient(45deg,transparent 50%,var(--color-muted) 50%),linear-gradient(135deg,var(--color-muted) 50%,transparent 50%);
+  background-position:calc(100% - 16px) center,calc(100% - 11px) center;
+  background-size:5px 5px,5px 5px;background-repeat:no-repeat;padding-right:28px;
+}
+
+/* ---- multi-toggle group (skill level): same visual language as .seg,
+   but each button toggles independently rather than one active choice ---- */
+.seg{display:flex;border:1px solid var(--color-line-strong)}
+.seg button{
+  flex:1;border:0;background:var(--color-surface);color:var(--color-muted);
+  font:inherit;font-family:var(--font-ui);font-size:12px;padding:7px var(--space-2);cursor:pointer;
+  border-radius:0;
+}
+.seg button+button{border-left:1px solid var(--color-line-strong)}
+.seg button[aria-pressed=true]{background:var(--color-text);color:var(--white)}
+
+/* ---- hybrid row ---- */
+.hybrid-row{display:grid;grid-template-columns:1fr auto 1fr;gap:var(--space-2);align-items:center}
+.hybrid-row .plus{font-family:var(--font-mono);color:var(--color-muted);text-align:center}
+
+/* ---- inline notice ---- */
+.notice{
+  padding:var(--space-2) var(--space-3);
+  background:var(--color-warn-bg);color:var(--color-warn);
+  font-size:11px;font-family:var(--font-mono);line-height:1.5;
+}
+.group .notice{margin-top:var(--space-2)}
+
+/* ---- stage: live markdown preview + export ---- */
+.stage{display:flex;flex-direction:column;min-width:0}
+.stage-bar{
+  display:flex;align-items:center;gap:var(--space-4);
+  padding:var(--space-3) var(--space-4);
+  border-bottom:1px solid var(--color-line);
+}
+.stage-bar .spacer{flex:1}
+.stat{font-family:var(--font-mono);font-size:11px;color:var(--color-muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+
+button.action{
+  font-family:var(--font-mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;
+  padding:7px var(--space-3);border-radius:0;
+  border:1px solid var(--color-text);background:var(--color-text);color:var(--white);cursor:pointer;
+}
+button.action.ghost{background:var(--color-surface);color:var(--color-text)}
+button.action:focus-visible{outline:2px solid var(--color-accent);outline-offset:2px}
+button.action:hover{opacity:.85}
+
+.route-bar{
+  display:flex;align-items:center;gap:var(--space-2);flex-wrap:wrap;
+  padding:var(--space-3) var(--space-4);
+  border-bottom:1px solid var(--color-line);background:var(--color-sunk);
+  font-family:var(--font-mono);font-size:11px;
+}
+.route-bar .email{color:var(--color-text);overflow-wrap:anywhere}
+.route-bar .step{color:var(--color-muted)}
+
+.md-wrap{flex:1;min-height:0;overflow:auto;padding:var(--space-4)}
+#mdPreview{
+  margin:0;font-family:var(--font-mono);font-size:12px;line-height:1.65;
+  white-space:pre-wrap;overflow-wrap:anywhere;color:var(--color-text);
+}
+.empty{color:var(--color-muted);text-align:center;max-width:34ch;font-size:12px;margin:var(--space-6) auto}
+
+/* ---- licence viewer ---- */
+.lic-link{
+  position:fixed;right:var(--space-4);bottom:var(--space-3);z-index:20;
+  font-family:var(--font-mono);font-size:10px;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--color-muted);background:var(--color-surface);
+  border:1px solid var(--color-line);padding:5px var(--space-2);cursor:pointer;border-radius:0;
+}
+.lic-link:hover{color:var(--color-text);border-color:var(--color-line-strong)}
+.lic-link:focus-visible{outline:2px solid var(--color-accent);outline-offset:2px}
+.lic-overlay{
+  position:fixed;inset:0;z-index:30;background:rgba(30,32,33,.55);
+  display:flex;align-items:center;justify-content:center;padding:var(--space-4);
+}
+.lic-panel{
+  background:var(--color-surface);border:1px solid var(--color-line-strong);
+  width:min(760px,100%);
+  max-height:86vh;max-height:86dvh;
+  display:flex;flex-direction:column;min-height:0;
+}
+.lic-head{
+  flex:none;
+  display:flex;align-items:center;gap:var(--space-3);
+  padding:var(--space-3) var(--space-4);border-bottom:1px solid var(--color-line-strong);
+  font-family:var(--font-mono);font-size:11px;letter-spacing:.09em;text-transform:uppercase;
+}
+.lic-head .spacer{flex:1}
+.lic-close{
+  flex:none;
+  border:1px solid var(--color-line-strong);background:var(--color-surface);color:var(--color-text);
+  font-family:var(--font-mono);font-size:11px;line-height:1;padding:5px 9px;cursor:pointer;border-radius:0;
+}
+.lic-close:hover{background:var(--color-text);color:var(--white)}
+.lic-tabs{
+  flex:none;
+  display:flex;border-bottom:1px solid var(--color-line);
+  overflow-x:auto;-webkit-overflow-scrolling:touch;
+}
+.lic-tabs button{
+  flex:none;
+  border:0;border-right:1px solid var(--color-line);background:var(--color-surface);
+  color:var(--color-muted);font:inherit;font-size:12px;padding:8px var(--space-3);
+  cursor:pointer;white-space:nowrap;border-radius:0;
+}
+.lic-tabs button[aria-selected=true]{background:var(--color-text);color:var(--white)}
+.lic-body{
+  flex:1 1 auto;min-height:0;
+  padding:var(--space-4);overflow-y:auto;overscroll-behavior:contain;
+  font-family:var(--font-mono);font-size:11px;line-height:1.65;
+  white-space:pre-wrap;overflow-wrap:anywhere;color:var(--color-text);
+}
+
+@media (max-width:860px){
+  .app{grid-template-columns:1fr;height:auto}
+  .panel{border-right:0;border-bottom:1px solid var(--color-line-strong);overflow-y:visible}
+  .stage{min-height:60vh}
+}
+@media (max-width:560px){
+  .masthead{padding:0 var(--space-3)}
+  .masthead #buildStamp{display:none}
+  .group{padding:var(--space-3)}
+  .stage-bar,.route-bar{padding:var(--space-2) var(--space-3)}
+  .md-wrap{padding:var(--space-3)}
+  .lic-overlay{padding:var(--space-2)}
+  .lic-panel{max-height:92vh;max-height:92dvh}
+  .lic-body{padding:var(--space-3);font-size:10px}
+  .lic-head{padding:var(--space-2) var(--space-3)}
+  .lic-link{right:var(--space-3);bottom:var(--space-2)}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none !important}}
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <span>Career Services</span>
+  <span class="arrow">&#8594;</span>
+  <span>Event Intake Dossier</span>
+  <span class="spacer"></span>
+  <span class="dim" id="buildStamp">Build 1</span>
+</header>
+
+<div class="app">
+  <aside class="panel">
+
+    <section class="group routing">
+      <h2>Internal routing</h2>
+      <div class="field">
+        <div class="field-head"><label for="pocSelect">Point of contact</label></div>
+        <select id="pocSelect">
+          <option value="">— Select —</option>
+          <option value="Rana Bashir|rbashir@aus.edu">Rana Bashir</option>
+          <option value="Mohamed Yassine|oyassine@aus.edu">Mohamed Yassine (Sr. Manager)</option>
+          <option value="Adnan Alharmoodi|aalharmoodi@aus.edu">Adnan Alharmoodi (Manager)</option>
+          <option value="Michael Rjeily|mrjeily@aus.edu">Michael Rjeily (Director)</option>
+          <option value="Abdulrahman Tawfik|b00108337@aus.edu">Abdulrahman Tawfik</option>
+          <option value="Ahnaf Abdur Rahman|b00096691@aus.edu">Ahnaf Abdur Rahman (Designer)</option>
+          <option value="other">Someone else / not listed</option>
+        </select>
+        <div class="field-help">Routing only — never appears on the poster or social copy.</div>
+      </div>
+      <div class="field" id="pocOtherWrap" hidden>
+        <div class="field-head"><label for="pocOtherName">Name</label></div>
+        <input type="text" id="pocOtherName">
+      </div>
+    </section>
+
+    <section class="group">
+      <h2>Event</h2>
+      <div class="field">
+        <div class="field-head"><label for="eventType" class="required">Event type</label></div>
+        <select id="eventType">
+          <option value="Talk">Talk</option>
+          <option value="Interactive Lecture">Interactive Lecture</option>
+          <option value="Workshop">Workshop</option>
+          <option value="Activation">Activation</option>
+          <option value="Panel Discussion">Panel Discussion</option>
+          <option value="Hybrid">Hybrid (combine two formats)</option>
+          <option value="Other">Other</option>
+        </select>
+        <div class="field-help">Interactive Lecture = lecture-leaning, lighter workshop elements, heavy Q&amp;A. Workshop = proper hands-on session.</div>
+      </div>
+
+      <div class="field" id="hybridWrap" hidden>
+        <div class="field-head"><label>Hybrid components</label></div>
+        <div class="hybrid-row">
+          <select id="hybridA"><option value="">— First —</option></select>
+          <span class="plus">+</span>
+          <select id="hybridB"><option value="">— Second —</option></select>
+        </div>
+        <div class="notice" id="hybridWarning" hidden>Interactive Lecture already blends lecture and workshop — pick just Interactive Lecture instead of stacking Workshop on top, or use plain "Lecture" if you mean something more evenly split.</div>
+      </div>
+
+      <div class="field" id="otherTypeWrap" hidden>
+        <div class="field-head"><label for="otherTypeName">Specify event type</label></div>
+        <input type="text" id="otherTypeName" placeholder="e.g. Hackathon, Career Fair">
+      </div>
+
+      <div class="field">
+        <div class="field-head"><label for="titleIdea">Working title idea</label></div>
+        <input type="text" id="titleIdea" placeholder="Leave blank for the designer to propose one">
+      </div>
+      <div class="field">
+        <div class="field-head"><label for="subtitleIdea">Subtitle idea</label></div>
+        <input type="text" id="subtitleIdea">
+      </div>
+    </section>
+
+    <section class="group">
+      <h2>Schedule</h2>
+      <div class="field">
+        <div class="field-head"><label for="eventDate" class="required">Date</label></div>
+        <input type="date" id="eventDate">
+      </div>
+      <div class="field">
+        <div class="field-head"><label for="eventTime" class="required">Time</label></div>
+        <input type="text" id="eventTime" placeholder="e.g. 3:30pm or 2pm–4pm">
+      </div>
+      <div class="field">
+        <div class="field-head"><label for="venue" class="required">Venue</label></div>
+        <input type="text" id="venue" placeholder="e.g. Floating Theatre">
+      </div>
+      <div class="field">
+        <div class="field-head"><label for="building" class="required">Building / location</label></div>
+        <input type="text" id="building" placeholder="e.g. Student Center, 1st Floor">
+      </div>
+      <div class="field">
+        <div class="field-head"><label for="sessionFormat">Session format / secondary detail</label></div>
+        <input type="text" id="sessionFormat" placeholder="e.g. drop-in, roundtable">
+      </div>
+    </section>
+
+    <section class="group">
+      <h2>People</h2>
+      <div class="field">
+        <div class="field-head"><label for="speakerName">Speaker / host name</label></div>
+        <input type="text" id="speakerName" list="staffNames" placeholder="Leave blank if led by CS staff">
+        <datalist id="staffNames">
+          <option value="Rana Bashir">
+          <option value="Mohamed Yassine">
+          <option value="Adnan Alharmoodi">
+          <option value="Michael Rjeily">
+          <option value="Abdulrahman Tawfik">
+          <option value="Ahnaf Abdur Rahman">
+        </datalist>
+      </div>
+      <div class="field">
+        <div class="field-head"><label for="speakerRole">Speaker / host role</label></div>
+        <input type="text" id="speakerRole">
+      </div>
+      <div class="field">
+        <div class="field-head"><label for="speakerImportance">Name drives attendance?</label></div>
+        <select id="speakerImportance">
+          <option value="N/A">N/A — no external speaker</option>
+          <option value="normal">Normal</option>
+          <option value="notable">Notable</option>
+          <option value="high-profile">High-profile</option>
+        </select>
+      </div>
+      <div class="field">
+        <div class="field-head"><label for="organizer">Organizer / co-organizer</label></div>
+        <input type="text" id="organizer" placeholder="Leave blank if just Career Services">
+      </div>
+    </section>
+
+    <section class="group">
+      <h2>Details</h2>
+      <div class="field">
+        <div class="field-head">
+          <label for="description" class="required">What happens</label>
+          <span class="readout" id="descCounter">0w</span>
+        </div>
+        <textarea id="description" rows="4" placeholder="Plain language: what starts, what's covered, what students do or hear."></textarea>
+      </div>
+      <div class="field">
+        <div class="field-head"><label for="audience" class="required">Audience</label></div>
+        <input type="text" id="audience" placeholder="e.g. all students, final-year business majors">
+      </div>
+      <div class="field">
+        <div class="field-head"><label>Skill level</label></div>
+        <div class="seg" id="skillLevels">
+          <button type="button" data-v="Beginner" aria-pressed="false">Beginner</button>
+          <button type="button" data-v="Intermediate" aria-pressed="false">Intermediate</button>
+          <button type="button" data-v="Advanced" aria-pressed="false">Advanced</button>
+        </div>
+      </div>
+      <div class="field">
+        <div class="field-head"><label for="regStatus" class="required">Registration</label></div>
+        <select id="regStatus">
+          <option value="No registration needed">No registration needed</option>
+          <option value="Registration required — link ready">Registration required — link ready</option>
+          <option value="Registration required — link not ready yet">Registration required — link not ready yet</option>
+          <option value="Not sure yet">Not sure yet</option>
+        </select>
+      </div>
+      <div class="field" id="regUrlWrap" hidden>
+        <div class="field-head"><label for="regUrl">Registration link</label></div>
+        <input type="url" id="regUrl" placeholder="https://">
+      </div>
+      <div class="field">
+        <div class="field-head"><label for="cta">Optional call-to-action</label></div>
+        <input type="text" id="cta">
+      </div>
+      <div class="field">
+        <div class="field-head"><label for="visualNotes">Visual ideas</label></div>
+        <textarea id="visualNotes" rows="2" placeholder="Optional — object, feeling, colour"></textarea>
+      </div>
+    </section>
+
+    <section class="group">
+      <h2>Make the case</h2>
+      <div class="field">
+        <div class="field-head"><label for="whyBenefit" class="required">Who benefits, and why now?</label></div>
+        <textarea id="whyBenefit" rows="3" placeholder="Be specific — not 'students' in general."></textarea>
+      </div>
+      <div class="field">
+        <div class="field-head"><label for="firstTimer" class="required">First-time visitor takeaway</label></div>
+        <textarea id="firstTimer" rows="3"></textarea>
+      </div>
+      <div class="field">
+        <div class="field-head"><label for="sensitivity">Needs careful framing?</label></div>
+        <textarea id="sensitivity" rows="2" placeholder="Optional — flag it here rather than after the poster's live"></textarea>
+      </div>
+    </section>
+
+  </aside>
+
+  <main class="stage">
+    <div class="stage-bar">
+      <span class="stat">Live preview</span>
+      <span class="spacer"></span>
+      <button class="action" id="exportBtn">Export .md</button>
+    </div>
+    <div class="route-bar">
+      <span class="step">Export, attach, then send to</span>
+      <span class="email" id="routeEmail">b00096691+csevents@aus.edu</span>
+      <button class="action ghost" id="copyEmailBtn" type="button" style="padding:3px 8px;font-size:10px">Copy</button>
+    </div>
+    <div class="notice" id="exportStatus" hidden style="margin:0 var(--space-4);margin-top:var(--space-3)"></div>
+    <div class="md-wrap">
+      <pre id="mdPreview"></pre>
+    </div>
+  </main>
+</div>
+
+<button class="lic-link" id="licOpen">Licences</button>
+
+<div class="lic-overlay" id="licOverlay" hidden role="dialog" aria-modal="true" aria-labelledby="licTitle">
+  <div class="lic-panel">
+    <div class="lic-head">
+      <span id="licTitle">Licences</span>
+      <span class="spacer"></span>
+      <button class="lic-close" id="licClose" aria-label="Close">&#10005;</button>
+    </div>
+    <div class="lic-tabs" id="licTabs" role="tablist"></div>
+    <div class="lic-body" id="licBody" tabindex="0"></div>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+
+/* ---- staff directory (routing only) ---- */
+function getPoc(){
+  const v = $('pocSelect').value;
+  if (!v) return { name:'', email:'' };
+  if (v === 'other') return { name: $('pocOtherName').value, email:'' };
+  const [name, email] = v.split('|');
+  return { name, email };
+}
+$('pocSelect').addEventListener('change', () => {
+  $('pocOtherWrap').hidden = $('pocSelect').value !== 'other';
+  renderMarkdown();
+});
+
+/* ---- event type + hybrid exclusivity ----
+   Interactive Lecture already blends lecture and workshop, so it cannot be
+   paired with Workshop as a second hybrid component — that pairing just
+   re-describes Interactive Lecture with extra steps. */
+const HYBRID_OPTIONS = ["Talk","Lecture","Interactive Lecture","Workshop","Activation","Panel Discussion","Other"];
+const BLOCKED_PAIR = ["Interactive Lecture","Workshop"];
+
+function fillHybridSelect(sel, exclude, placeholder){
+  const current = sel.value;
+  sel.innerHTML = '<option value="">— ' + placeholder + ' —</option>';
+  HYBRID_OPTIONS.forEach(opt => {
+    if (exclude.includes(opt)) return;
+    const o = document.createElement('option');
+    o.value = opt; o.textContent = opt;
+    sel.appendChild(o);
+  });
+  if (!exclude.includes(current)) sel.value = current;
+}
+function isBlockedPair(a, b){
+  return BLOCKED_PAIR.includes(a) && BLOCKED_PAIR.includes(b) && a !== b;
+}
+function refreshHybridOptions(){
+  const a = $('hybridA').value, b = $('hybridB').value;
+  let excludeForB = a ? [a] : [];
+  if (a === 'Interactive Lecture') excludeForB.push('Workshop');
+  if (a === 'Workshop') excludeForB.push('Interactive Lecture');
+  fillHybridSelect($('hybridB'), excludeForB, 'Second');
+
+  let excludeForA = b ? [b] : [];
+  if (b === 'Interactive Lecture') excludeForA.push('Workshop');
+  if (b === 'Workshop') excludeForA.push('Interactive Lecture');
+  fillHybridSelect($('hybridA'), excludeForA, 'First');
+
+  $('hybridWarning').hidden = !isBlockedPair($('hybridA').value, $('hybridB').value);
+}
+$('hybridA').addEventListener('change', () => { refreshHybridOptions(); renderMarkdown(); });
+$('hybridB').addEventListener('change', () => { refreshHybridOptions(); renderMarkdown(); });
+refreshHybridOptions();
+
+function syncEventTypeVisibility(){
+  const v = $('eventType').value;
+  $('hybridWrap').hidden = v !== 'Hybrid';
+  $('otherTypeWrap').hidden = v !== 'Other';
+}
+$('eventType').addEventListener('change', () => { syncEventTypeVisibility(); renderMarkdown(); });
+syncEventTypeVisibility();
+
+$('regStatus').addEventListener('change', () => {
+  $('regUrlWrap').hidden = $('regStatus').value !== 'Registration required — link ready';
+  renderMarkdown();
+});
+
+/* ---- skill level: multi-toggle, not single-select ---- */
+document.querySelectorAll('#skillLevels button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    btn.setAttribute('aria-pressed', String(btn.getAttribute('aria-pressed') !== 'true'));
+    renderMarkdown();
+  });
+});
+function getSkillLevels(){
+  return Array.from(document.querySelectorAll('#skillLevels button[aria-pressed=true]')).map(b => b.dataset.v);
+}
+
+/* ---- word counter ---- */
+function updateWordCounter(){
+  const words = $('description').value.trim().split(/\s+/).filter(Boolean).length;
+  const el = $('descCounter');
+  el.textContent = words + 'w';
+  el.className = 'readout' + (words > 0 && (words < 50 || words > 85) ? ' warn' : '');
+}
+$('description').addEventListener('input', () => { updateWordCounter(); renderMarkdown(); });
+
+/* ---- markdown build ---- */
+function mdEscape(s){ return (s || '').toString().trim(); }
+function getEventType(){
+  const v = $('eventType').value;
+  if (v === 'Hybrid'){
+    const a = $('hybridA').value, b = $('hybridB').value;
+    return (a && b) ? a + ' + ' + b + ' (Hybrid)' : '(Hybrid — select both formats)';
+  }
+  if (v === 'Other') return $('otherTypeName').value || '(Other — specify)';
+  return v;
+}
+function buildMarkdown(){
+  const poc = getPoc(), skills = getSkillLevels();
+  const title = mdEscape($('titleIdea').value) || 'Untitled Event';
+  const lines = [
+    '# Event Intake — ' + title, '',
+    '## Event Facts (for design + copy)',
+    '- Event Type: ' + (mdEscape(getEventType()) || 'Not provided'),
+    '- Working Title Idea: ' + (mdEscape($('titleIdea').value) || 'Not provided'),
+    '- Subtitle Idea: ' + (mdEscape($('subtitleIdea').value) || 'Not provided'),
+    '- Date: ' + (mdEscape($('eventDate').value) || 'Not provided'),
+    '- Time: ' + (mdEscape($('eventTime').value) || 'Not provided'),
+    '- Venue: ' + (mdEscape($('venue').value) || 'Not provided'),
+    '- Building / Location: ' + (mdEscape($('building').value) || 'Not provided'),
+    '- Session Format / Secondary Category: ' + (mdEscape($('sessionFormat').value) || 'Not provided'),
+    '- Speaker / Host Name: ' + (mdEscape($('speakerName').value) || 'Not provided'),
+    '- Speaker / Host Role: ' + (mdEscape($('speakerRole').value) || 'Not provided'),
+    '- External Speaker Importance: ' + $('speakerImportance').value,
+    '- Organizer / Co-organizer: ' + (mdEscape($('organizer').value) || 'Not provided'),
+    '- Event Description: ' + (mdEscape($('description').value) || 'Not provided'),
+    '- Audience: ' + (mdEscape($('audience').value) || 'Not provided'),
+    '- Skill Level: ' + (skills.length ? skills.join(', ') : 'Not provided'),
+    '- Registration Status: ' + $('regStatus').value,
+    '- Registration URL: ' + (mdEscape($('regUrl').value) || 'Not provided'),
+    '- Optional CTA / Special Note: ' + (mdEscape($('cta').value) || 'Not provided'),
+    '- Visual Notes: ' + (mdEscape($('visualNotes').value) || 'Not provided'), '',
+    '## Make the Case',
+    '- Who benefits & why now: ' + (mdEscape($('whyBenefit').value) || 'Not provided'),
+    '- First-time-visitor takeaway: ' + (mdEscape($('firstTimer').value) || 'Not provided'),
+    '- Sensitive framing notes: ' + (mdEscape($('sensitivity').value) || 'None flagged'), '',
+    '## Internal Routing (not for poster/social/visual output)',
+    '- Point of Contact: ' + (poc.name || 'Not provided') + (poc.email ? ' (' + poc.email + ')' : '')
+  ];
+  return lines.join('\n');
+}
+function renderMarkdown(){ $('mdPreview').textContent = buildMarkdown(); }
+document.querySelectorAll('input, select, textarea').forEach(el => {
+  el.addEventListener('input', renderMarkdown);
+  el.addEventListener('change', renderMarkdown);
+});
+
+/* ---- export: plain Blob download, this is a normal web page ---- */
+function slugify(s){
+  return (s || 'untitled-event').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'') || 'untitled-event';
+}
+$('exportBtn').addEventListener('click', () => {
+  const md = buildMarkdown();
+  const blob = new Blob([md], { type: 'text/markdown' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'event-intake-' + slugify($('titleIdea').value) + '.md';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  const status = $('exportStatus');
+  status.hidden = false;
+  status.style.background = 'var(--color-sunk)';
+  status.style.color = 'var(--color-text)';
+  status.textContent = 'Saved ' + a.download + '. Attach it to an email and send it to the address above.';
+});
+$('copyEmailBtn').addEventListener('click', async () => {
+  const btn = $('copyEmailBtn');
+  try {
+    await navigator.clipboard.writeText($('routeEmail').textContent);
+    const original = btn.textContent;
+    btn.textContent = 'Copied';
+    setTimeout(() => { btn.textContent = original; }, 1500);
+  } catch (e) { /* clipboard unavailable — address is visible to select manually */ }
+});
+
+updateWordCounter();
+renderMarkdown();
+
+/* =========================================================================
+   LICENCES — same texts as the rest of this repository (one project, one
+   tool licence); only the third-party summary names this tool specifically.
+   ========================================================================= */
+const LICENCES = {"Tool": "Copyright © 2026 Ahnaf Abdur Rahman. All rights reserved.\n\nThis software, its source code, design, and accompanying documentation are the\nexclusive property of Ahnaf Abdur Rahman (the \"Owner\"). No rights are granted to\nany party except as stated below. All rights not expressly granted are reserved.\n\nGRANT TO THE AMERICAN UNIVERSITY OF SHARJAH\n\nThe Owner grants to the American University of Sharjah (\"AUS\"), including its\ndepartments, offices, faculty, staff, and students acting in their institutional\ncapacity, a perpetual, irrevocable, worldwide, royalty-free, non-exclusive\nlicence to use, host, and display this software for any institutional purpose;\nto reproduce and distribute it internally within AUS; to modify it and create\nderivative works from it on these same terms; and to create, use, publish, and\ncommercially exploit any output generated with it, without restriction and\nwithout attribution to the Owner.\n\nThis grant extends to contractors, agencies, and vendors engaged by AUS, solely\nfor work performed on behalf of AUS and only for the duration of that engagement.\n\nThe grant is perpetual and irrevocable. It survives any change in the Owner's\nrelationship with AUS and any transfer of ownership of the software.\n\nLIMITS\n\nAUS may not sublicense, sell, or transfer this software to any party outside AUS\nexcept as permitted above; may not publish or distribute it, or any derivative\nwork of it, to the general public or as an open-source project; and may not\nremove or alter this licence or the copyright notice.\n\nThese limits apply to the software, not to its output. Output carries no\nrestriction.\n\nALL OTHER PARTIES\n\nNo party other than AUS is granted any right to use, copy, modify, distribute, or\ncreate derivative works from this software. Any such use requires prior written\npermission from the Owner.\n\nNO WARRANTY\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS\nFOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT. IN NO EVENT SHALL THE OWNER BE\nLIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY ARISING FROM THE SOFTWARE OR\nITS USE.\n\nThe full licence text is in the LICENSE file of the project repository.","Uncut Sans": "Copyright (c) 2022 Kasper Nordkvist.\n\"Uncut Sans\" is trademark of Kasper Nordkvist.\nhttps://uncut.wtf/sans-serif/uncut-sans.html\n\nThis Font Software is licensed under the SIL Open Font License, Version 1.1.\nThis license is copied below, and is also available with a FAQ at:\nhttp://scripts.sil.org/OFL\n\nEmbedded unmodified in this tool via fonts/UncutSans-Variable.woff2.\n\n-----------------------------------------------------------\nSIL OPEN FONT LICENSE Version 1.1 - 26 February 2007\n-----------------------------------------------------------\n\nPREAMBLE\nThe goals of the Open Font License (OFL) are to stimulate worldwide\ndevelopment of collaborative font projects, to support the font creation\nefforts of academic and linguistic communities, and to provide a free and\nopen framework in which fonts may be shared and improved in partnership\nwith others.\n\nThe OFL allows the licensed fonts to be used, studied, modified and\nredistributed freely as long as they are not sold by themselves. The\nfonts, including any derivative works, can be bundled, embedded,\nredistributed and/or sold with any software provided that any reserved\nnames are not used by derivative works. The fonts and derivatives,\nhowever, cannot be released under any other type of license. The\nrequirement for fonts to remain under this license does not apply\nto any document created using the fonts or their derivatives.\n\nDEFINITIONS\n\"Font Software\" refers to the set of files released by the Copyright\nHolder(s) under this license and clearly marked as such. This may\ninclude source files, build scripts and documentation.\n\n\"Reserved Font Name\" refers to any names specified as such after the\ncopyright statement(s).\n\n\"Original Version\" refers to the collection of Font Software components as\ndistributed by the Copyright Holder(s).\n\n\"Modified Version\" refers to any derivative made by adding to, deleting,\nor substituting -- in part or in whole -- any of the components of the\nOriginal Version, by changing formats or by porting the Font Software to a\nnew environment.\n\n\"Author\" refers to any designer, engineer, programmer, technical\nwriter or other person who contributed to the Font Software.\n\nPERMISSION AND CONDITIONS\nPermission is hereby granted, free of charge, to any person obtaining\na copy of the Font Software, to use, study, copy, merge, embed, modify,\nredistribute, and sell modified and unmodified copies of the Font\nSoftware, subject to the following conditions:\n\n1) Neither the Font Software nor any of its individual components,\nin Original or Modified Versions, may be sold by itself.\n\n2) Original or Modified Versions of the Font Software may be bundled,\nredistributed and/or sold with any software, provided that each copy\ncontains the above copyright notice and this license. These can be\nincluded either as stand-alone text files, human-readable headers or\nin the appropriate machine-readable metadata fields within text or\nbinary files as long as those fields can be easily viewed by the user.\n\n3) No Modified Version of the Font Software may use the Reserved Font\nName(s) unless explicit written permission is granted by the corresponding\nCopyright Holder. This restriction only applies to the primary font name as\npresented to the users.\n\n4) The name(s) of the Copyright Holder(s) or the Author(s) of the Font\nSoftware shall not be used to promote, endorse or advertise any\nModified Version, except to acknowledge the contribution(s) of the\nCopyright Holder(s) and the Author(s) or with their explicit written\npermission.\n\n5) The Font Software, modified or unmodified, in part or in whole,\nmust be distributed entirely under this license, and must not be\ndistributed under any other license. The requirement for fonts to\nremain under this license does not apply to any document created\nusing the Font Software.\n\nTERMINATION\nThis license becomes null and void if any of the above conditions are\nnot met.\n\nDISCLAIMER\nTHE FONT SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND,\nEXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTIES OF\nMERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT\nOF COPYRIGHT, PATENT, TRADEMARK, OR OTHER RIGHT. IN NO EVENT SHALL THE\nCOPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,\nINCLUDING ANY GENERAL, SPECIAL, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL\nDAMAGES, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\nFROM, OUT OF THE USE OR INABILITY TO USE THE FONT SOFTWARE OR FROM\nOTHER DEALINGS IN THE FONT SOFTWARE.","Geist Mono": "Copyright (c) 2023 Vercel, in collaboration with basement.studio\n\nThis Font Software is licensed under the SIL Open Font License, Version 1.1.\nThis license is copied below, and is also available with a FAQ at:\nhttp://scripts.sil.org/OFL\n\nEmbedded unmodified in this tool via fonts/GeistMono-Variable.woff2.\n\n-----------------------------------------------------------\nSIL OPEN FONT LICENSE Version 1.1 - 26 February 2007\n-----------------------------------------------------------\n\nPREAMBLE\nThe goals of the Open Font License (OFL) are to stimulate worldwide\ndevelopment of collaborative font projects, to support the font creation\nefforts of academic and linguistic communities, and to provide a free and\nopen framework in which fonts may be shared and improved in partnership\nwith others.\n\nThe OFL allows the licensed fonts to be used, studied, modified and\nredistributed freely as long as they are not sold by themselves. The\nfonts, including any derivative works, can be bundled, embedded,\nredistributed and/or sold with any software provided that any reserved\nnames are not used by derivative works. The fonts and derivatives,\nhowever, cannot be released under any other type of license. The\nrequirement for fonts to remain under this license does not apply\nto any document created using the fonts or their derivatives.\n\nDEFINITIONS\n\"Font Software\" refers to the set of files released by the Copyright\nHolder(s) under this license and clearly marked as such. This may\ninclude source files, build scripts and documentation.\n\n\"Reserved Font Name\" refers to any names specified as such after the\ncopyright statement(s).\n\n\"Original Version\" refers to the collection of Font Software components as\ndistributed by the Copyright Holder(s).\n\n\"Modified Version\" refers to any derivative made by adding to, deleting,\nor substituting -- in part or in whole -- any of the components of the\nOriginal Version, by changing formats or by porting the Font Software to a\nnew environment.\n\n\"Author\" refers to any designer, engineer, programmer, technical\nwriter or other person who contributed to the Font Software.\n\nPERMISSION AND CONDITIONS\nPermission is hereby granted, free of charge, to any person obtaining\na copy of the Font Software, to use, study, copy, merge, embed, modify,\nredistribute, and sell modified and unmodified copies of the Font\nSoftware, subject to the following conditions:\n\n1) Neither the Font Software nor any of its individual components,\nin Original or Modified Versions, may be sold by itself.\n\n2) Original or Modified Versions of the Font Software may be bundled,\nredistributed and/or sold with any software, provided that each copy\ncontains the above copyright notice and this license. These can be\nincluded either as stand-alone text files, human-readable headers or\nin the appropriate machine-readable metadata fields within text or\nbinary files as long as those fields can be easily viewed by the user.\n\n3) No Modified Version of the Font Software may use the Reserved Font\nName(s) unless explicit written permission is granted by the corresponding\nCopyright Holder. This restriction only applies to the primary font name as\npresented to the users.\n\n4) The name(s) of the Copyright Holder(s) or the Author(s) of the Font\nSoftware shall not be used to promote, endorse or advertise any\nModified Version, except to acknowledge the contribution(s) of the\nCopyright Holder(s) and the Author(s) or with their explicit written\npermission.\n\n5) The Font Software, modified or unmodified, in part or in whole,\nmust be distributed entirely under this license, and must not be\ndistributed under any other license. The requirement for fonts to\nremain under this license does not apply to any document created\nusing the Font Software.\n\nTERMINATION\nThis license becomes null and void if any of the above conditions are\nnot met.\n\nDISCLAIMER\nTHE FONT SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND,\nEXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTIES OF\nMERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT\nOF COPYRIGHT, PATENT, TRADEMARK, OR OTHER RIGHT. IN NO EVENT SHALL THE\nCOPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,\nINCLUDING ANY GENERAL, SPECIAL, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL\nDAMAGES, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\nFROM, OUT OF THE USE OR INABILITY TO USE THE FONT SOFTWARE OR FROM\nOTHER DEALINGS IN THE FONT SOFTWARE.","Third-party": "Event Intake Dossier embeds two typefaces. They are not covered by this\nproject's own licence and remain the property of their respective copyright\nholders, licensed under the SIL Open Font License, Version 1.1.\n\n  Uncut Sans   Copyright (c) 2022 Kasper Nordkvist\n  Geist Mono   Copyright (c) 2023 Vercel, in collaboration with basement.studio\n\nBoth are embedded unmodified. Neither declares a Reserved Font Name. Neither is\nsold separately, and no other licence is applied to them. Their full licence\ntexts are in the tabs above.\n\nNo other third-party code, libraries, icons, or assets are used. All remaining\ncode is original.\n\nUnder the OFL, the requirement for fonts to remain under that licence does not\napply to any document created using them — the exported .md file carries no\nfont licensing obligation."};
+
+(function initLicences(){
+  const tabs = $('licTabs'), body = $('licBody'), overlay = $('licOverlay');
+  const names = Object.keys(LICENCES);
+  let active = names[0], lastFocus = null;
+
+  names.forEach(n => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.textContent = n; b.setAttribute('role','tab');
+    b.onclick = () => show(n);
+    tabs.appendChild(b);
+  });
+  function show(n) {
+    active = n;
+    [...tabs.children].forEach(c => c.setAttribute('aria-selected', String(c.textContent === n)));
+    body.textContent = LICENCES[n];
+    body.scrollTop = 0;
+  }
+  function open() {
+    const a = document.activeElement;
+    lastFocus = (a && a !== document.body) ? a : $('licOpen');
+    overlay.hidden = false;
+    show(active);
+    $('licClose').focus();
+  }
+  function close() {
+    overlay.hidden = true;
+    if (lastFocus) lastFocus.focus();
+  }
+  $('licOpen').onclick = open;
+  $('licClose').onclick = close;
+  overlay.onclick = e => { if (e.target === overlay) close(); };
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && !overlay.hidden) close();
+  });
+  show(active);
+})();
+</script>
+</body>
+</html>
