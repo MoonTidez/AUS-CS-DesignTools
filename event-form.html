@@ -86,6 +86,8 @@ body{
   font-family:var(--font-mono);font-size:11px;font-weight:500;
   letter-spacing:.09em;text-transform:uppercase;
   white-space:nowrap;overflow:hidden;
+  position:sticky;top:0;z-index:11;
+  background:var(--color-bg);
 }
 .masthead .arrow{color:var(--color-muted)}
 .masthead .spacer{flex:1;min-width:var(--space-2)}
@@ -93,33 +95,45 @@ body{
 .masthead a{color:var(--color-text);text-decoration:none}
 .masthead a:hover{color:var(--color-accent)}
 
-.app{display:grid;grid-template-columns:316px 1fr;height:calc(100vh - 34px);height:calc(100dvh - 34px)}
+.app{display:grid;grid-template-columns:minmax(0,1fr) 340px;align-items:start}
+.app.preview-collapsed{grid-template-columns:minmax(0,1fr) auto}
 
-/* ---- panel ---- */
-.panel{
+/* ---- form main: this is the primary content, not a side panel ---- */
+.form-main{
   background:var(--color-surface);
-  border-right:1px solid var(--color-line-strong);
-  overflow-y:auto;
+  min-width:0;
 }
-.group{padding:var(--space-4);border-bottom:1px solid var(--color-line)}
+.form-header{
+  display:flex;justify-content:space-between;align-items:flex-end;gap:var(--space-4);
+  padding:var(--space-6) var(--space-6) var(--space-5);
+  border-bottom:1px solid var(--color-line-strong);
+  position:sticky;top:34px;z-index:10;
+  background:var(--color-surface);
+}
+.form-header h1{margin:0 0 6px;font-family:var(--font-ui);font-weight:600;font-size:24px;letter-spacing:-.01em}
+.form-header .form-sub{margin:0;color:var(--color-muted);font-size:13px;max-width:56ch}
+.form-header .form-actions{flex:none}
+
+.group{padding:var(--space-5) var(--space-6);border-bottom:1px solid var(--color-line);max-width:640px}
 .group:last-child{border-bottom:0}
 .group>h2{
-  margin:0 0 var(--space-3);
-  font-family:var(--font-mono);font-size:10px;font-weight:500;
+  margin:0 0 var(--space-4);
+  font-family:var(--font-mono);font-size:12px;font-weight:500;
   letter-spacing:.11em;text-transform:uppercase;color:var(--color-muted);
 }
-.group.routing{background:var(--color-sunk)}
-.group.routing>h2{color:var(--color-text)}
+
+/* ---- pair short fields side by side now that the form has room ---- */
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-4)}
 
 /* ---- fields ---- */
 .field{margin-bottom:var(--space-4)}
 .field:last-child{margin-bottom:0}
 .field-head{display:flex;justify-content:space-between;align-items:baseline;gap:var(--space-2);margin-bottom:var(--space-2)}
-.field-head label{font-size:12px}
-.field-help{font-size:11px;color:var(--color-muted);margin-top:var(--space-1)}
+.field-head label{font-size:13px}
+.field-help{font-size:12px;color:var(--color-muted);margin-top:var(--space-1);line-height:1.5}
 .required:after{content:" *";color:var(--color-accent)}
 .readout{
-  font-family:var(--font-mono);font-size:11px;color:var(--color-text);
+  font-family:var(--font-mono);font-size:12px;color:var(--color-text);
   white-space:nowrap;font-variant-numeric:tabular-nums;
 }
 .readout.warn{color:var(--color-warn)}
@@ -132,6 +146,14 @@ input[type=text],input[type=date],input[type=url],select,textarea{
   padding:7px 9px;
 }
 textarea{resize:vertical;min-height:64px;line-height:1.5}
+/* ---- "grow" fields: start the height of a single line, like a plain
+   text input, but wrap long content and expand with it instead of
+   scrolling sideways and hiding what was typed; past a few lines they
+   cap out and scroll internally rather than taking over the page ---- */
+textarea.grow{
+  min-height:34px;max-height:160px;overflow-y:auto;
+  resize:none;line-height:1.45;
+}
 input::placeholder,textarea::placeholder{color:var(--color-muted)}
 :focus-visible{outline:2px solid var(--color-accent);outline-offset:1px}
 select{appearance:none;-webkit-appearance:none;
@@ -159,18 +181,30 @@ select{appearance:none;-webkit-appearance:none;
 .notice{
   padding:var(--space-2) var(--space-3);
   background:var(--color-warn-bg);color:var(--color-warn);
-  font-size:11px;font-family:var(--font-mono);line-height:1.5;
+  font-size:12px;font-family:var(--font-mono);line-height:1.5;
 }
 .group .notice{margin-top:var(--space-2)}
 
-/* ---- stage: live markdown preview + export ---- */
-.stage{display:flex;flex-direction:column;min-width:0}
-.stage-bar{
-  display:flex;align-items:center;gap:var(--space-4);
+/* ---- preview panel: a secondary, receding readout of what the form
+   builds — not the main event, so it stays narrow, muted, and out of the
+   way. Sticky so it tracks a long form without its own viewport-height box. ---- */
+.preview-panel{
+  background:var(--color-sunk);
+  border-left:1px solid var(--color-line-strong);
+  position:sticky;top:34px;
+  height:calc(100vh - 34px);height:calc(100dvh - 34px);
+  display:flex;flex-direction:column;min-width:0;
+}
+.app.preview-collapsed .preview-panel{width:44px}
+.app.preview-collapsed .preview-panel .md-wrap,
+.app.preview-collapsed .preview-panel .route-bar,
+.app.preview-collapsed .preview-panel .stat{display:none}
+.preview-head{
+  display:flex;align-items:center;gap:var(--space-3);flex:none;
   padding:var(--space-3) var(--space-4);
   border-bottom:1px solid var(--color-line);
 }
-.stage-bar .spacer{flex:1}
+.preview-head .spacer{flex:1}
 .stat{font-family:var(--font-mono);font-size:11px;color:var(--color-muted);font-variant-numeric:tabular-nums;white-space:nowrap}
 
 button.action{
@@ -250,15 +284,24 @@ button.action:hover{opacity:.85}
 }
 
 @media (max-width:860px){
-  .app{grid-template-columns:1fr;height:auto}
-  .panel{border-right:0;border-bottom:1px solid var(--color-line-strong);overflow-y:visible}
-  .stage{min-height:60vh}
+  .app,.app.preview-collapsed{grid-template-columns:1fr}
+  .form-header{padding:var(--space-5) var(--space-4) var(--space-4);flex-wrap:wrap}
+  .group{padding:var(--space-4);max-width:none}
+  .preview-panel{
+    position:static;height:auto;border-left:0;border-top:1px solid var(--color-line-strong);
+  }
+  .app.preview-collapsed .preview-panel{width:auto}
+  .app.preview-collapsed .preview-panel .md-wrap,
+  .app.preview-collapsed .preview-panel .route-bar{display:none}
+  .md-wrap{max-height:40vh}
 }
 @media (max-width:560px){
   .masthead{padding:0 var(--space-3)}
   .masthead #buildStamp{display:none}
+  .form-header{padding:var(--space-4) var(--space-3)}
   .group{padding:var(--space-3)}
-  .stage-bar,.route-bar{padding:var(--space-2) var(--space-3)}
+  .field-row{grid-template-columns:1fr}
+  .preview-head,.route-bar{padding:var(--space-2) var(--space-3)}
   .md-wrap{padding:var(--space-3)}
   .lic-overlay{padding:var(--space-2)}
   .lic-panel{max-height:92vh;max-height:92dvh}
@@ -279,30 +322,18 @@ button.action:hover{opacity:.85}
   <span class="dim" id="buildStamp">Build 1</span>
 </header>
 
-<div class="app">
-  <aside class="panel">
+<div class="app" id="appRoot">
+  <main class="form-main">
 
-    <section class="group routing">
-      <h2>Internal routing</h2>
-      <div class="field">
-        <div class="field-head"><label for="pocSelect">Point of contact</label></div>
-        <select id="pocSelect">
-          <option value="">— Select —</option>
-          <option value="Rana Bashir|rbashir@aus.edu">Rana Bashir</option>
-          <option value="Mohamed Yassine|oyassine@aus.edu">Mohamed Yassine (Sr. Manager)</option>
-          <option value="Adnan Alharmoodi|aalharmoodi@aus.edu">Adnan Alharmoodi (Manager)</option>
-          <option value="Michael Rjeily|mrjeily@aus.edu">Michael Rjeily (Director)</option>
-          <option value="Abdulrahman Tawfik|b00108337@aus.edu">Abdulrahman Tawfik</option>
-          <option value="Ahnaf Abdur Rahman|b00096691@aus.edu">Ahnaf Abdur Rahman (Designer)</option>
-          <option value="other">Someone else / not listed</option>
-        </select>
-        <div class="field-help">Routing only — never appears on the poster or social copy.</div>
+    <div class="form-header">
+      <div>
+        <h1>Event Intake</h1>
+        <p class="form-sub">Fill in what you know — required fields are marked. The live preview builds as you go.</p>
       </div>
-      <div class="field" id="pocOtherWrap" hidden>
-        <div class="field-head"><label for="pocOtherName">Name</label></div>
-        <input type="text" id="pocOtherName">
+      <div class="form-actions">
+        <button class="action" id="exportBtn">Export .md</button>
       </div>
-    </section>
+    </div>
 
     <section class="group">
       <h2>Event</h2>
@@ -327,53 +358,62 @@ button.action:hover{opacity:.85}
           <span class="plus">+</span>
           <select id="hybridB"><option value="">— Second —</option></select>
         </div>
+        <div class="field-help">Pick the two formats this event actually blends — e.g. Talk + Panel Discussion becomes "Talk + Panel Discussion (Hybrid)" on the poster.</div>
         <div class="notice" id="hybridWarning" hidden>Interactive Lecture already blends lecture and workshop — pick just Interactive Lecture instead of stacking Workshop on top, or use plain "Lecture" if you mean something more evenly split.</div>
       </div>
 
       <div class="field" id="otherTypeWrap" hidden>
         <div class="field-head"><label for="otherTypeName">Specify event type</label></div>
-        <input type="text" id="otherTypeName" placeholder="e.g. Hackathon, Career Fair">
+        <textarea rows="1" class="grow" id="otherTypeName" placeholder="e.g. Hackathon, Career Fair"></textarea>
       </div>
 
       <div class="field">
         <div class="field-head"><label for="titleIdea">Working title idea</label></div>
-        <input type="text" id="titleIdea" placeholder="Leave blank for the designer to propose one">
+        <textarea rows="1" class="grow" id="titleIdea" placeholder="Leave blank for the designer to propose one"></textarea>
       </div>
       <div class="field">
         <div class="field-head"><label for="subtitleIdea">Subtitle idea</label></div>
-        <input type="text" id="subtitleIdea">
+        <textarea rows="1" class="grow" id="subtitleIdea" placeholder="Leave blank for the designer to propose one"></textarea>
+        <div class="field-help">A short line under the title — what the event actually is, in plain terms (e.g. "Interactive Lecture by the Department of Career Services").</div>
       </div>
     </section>
 
     <section class="group">
       <h2>Schedule</h2>
-      <div class="field">
-        <div class="field-head"><label for="eventDate" class="required">Date</label></div>
-        <input type="date" id="eventDate">
+      <div class="field-row">
+        <div class="field">
+          <div class="field-head"><label for="eventDate" class="required">Date</label></div>
+          <input type="date" id="eventDate">
+        </div>
+        <div class="field">
+          <div class="field-head"><label for="eventTime" class="required">Time</label></div>
+          <textarea rows="1" class="grow" id="eventTime" placeholder="e.g. 3:30pm or 2pm–4pm"></textarea>
+        </div>
       </div>
-      <div class="field">
-        <div class="field-head"><label for="eventTime" class="required">Time</label></div>
-        <input type="text" id="eventTime" placeholder="e.g. 3:30pm or 2pm–4pm">
-      </div>
-      <div class="field">
-        <div class="field-head"><label for="venue" class="required">Venue</label></div>
-        <input type="text" id="venue" placeholder="e.g. Floating Theatre">
-      </div>
-      <div class="field">
-        <div class="field-head"><label for="building" class="required">Building / location</label></div>
-        <input type="text" id="building" placeholder="e.g. Student Center, 1st Floor">
+      <div class="field-row">
+        <div class="field">
+          <div class="field-head"><label for="venue" class="required">Venue</label></div>
+          <textarea rows="1" class="grow" id="venue" placeholder="e.g. Floating Theatre"></textarea>
+          <div class="field-help">The named room or space itself.</div>
+        </div>
+        <div class="field">
+          <div class="field-head"><label for="building" class="required">Building / location</label></div>
+          <textarea rows="1" class="grow" id="building" placeholder="e.g. Student Center, 1st Floor"></textarea>
+          <div class="field-help">Where to find that venue — the building and floor, for anyone who doesn't already know it.</div>
+        </div>
       </div>
       <div class="field">
         <div class="field-head"><label for="sessionFormat">Session format / secondary detail</label></div>
-        <input type="text" id="sessionFormat" placeholder="e.g. drop-in, roundtable">
+        <textarea rows="1" class="grow" id="sessionFormat" placeholder="e.g. drop-in, roundtable"></textarea>
+        <div class="field-help">Optional — anything about how the session runs that isn't captured by the event type above (drop-in vs. fixed start, seated vs. standing, capacity limits, etc.).</div>
       </div>
     </section>
 
     <section class="group">
       <h2>People</h2>
       <div class="field">
-        <div class="field-head"><label for="speakerName">Speaker / host name</label></div>
-        <input type="text" id="speakerName" list="staffNames" placeholder="Leave blank if led by CS staff">
+        <div class="field-head"><label for="speakerName" class="required">Speaker / host name</label></div>
+        <input type="text" id="speakerName" list="staffNames" placeholder="Select a staff member, or enter the outside host's full name">
         <datalist id="staffNames">
           <option value="Rana Bashir">
           <option value="Mohamed Yassine">
@@ -382,23 +422,29 @@ button.action:hover{opacity:.85}
           <option value="Abdulrahman Tawfik">
           <option value="Ahnaf Abdur Rahman">
         </datalist>
+        <div class="field-help">Start typing to pick a Career Services staff member from the list, or type the full name of whoever from outside is running it. Every event needs a name here — even a purely staff-run one.</div>
       </div>
-      <div class="field">
-        <div class="field-head"><label for="speakerRole">Speaker / host role</label></div>
-        <input type="text" id="speakerRole">
-      </div>
-      <div class="field">
-        <div class="field-head"><label for="speakerImportance">Name drives attendance?</label></div>
-        <select id="speakerImportance">
-          <option value="N/A">N/A — no external speaker</option>
-          <option value="normal">Normal</option>
-          <option value="notable">Notable</option>
-          <option value="high-profile">High-profile</option>
-        </select>
+      <div class="field-row">
+        <div class="field">
+          <div class="field-head"><label for="speakerRole">Speaker / host role</label></div>
+          <textarea rows="1" class="grow" id="speakerRole" placeholder="e.g. Alum, Class of 2019 — Product Manager at Google"></textarea>
+          <div class="field-help">Leave blank if the name above is a Career Services staff member — their department is credit enough. Fill this in for an outside host: what makes them worth listening to (their title, company, or connection to AUS).</div>
+        </div>
+        <div class="field">
+          <div class="field-head"><label for="speakerImportance">Name drives attendance?</label></div>
+          <select id="speakerImportance">
+            <option value="N/A">N/A — no external speaker</option>
+            <option value="normal">Normal</option>
+            <option value="notable">Notable</option>
+            <option value="high-profile">High-profile</option>
+          </select>
+          <div class="field-help">How much the poster should lean on the name itself to get people in the room. "Normal" keeps the topic as the headline; "Notable" or "High-profile" means the designer should feature the speaker's name and credentials prominently, the way a recognizable guest would be billed.</div>
+        </div>
       </div>
       <div class="field">
         <div class="field-head"><label for="organizer">Organizer / co-organizer</label></div>
-        <input type="text" id="organizer" placeholder="Leave blank if just Career Services">
+        <textarea rows="1" class="grow" id="organizer" placeholder="Leave blank if just Career Services"></textarea>
+        <div class="field-help">Only fill this in if another department, club, or outside company is co-hosting alongside Career Services.</div>
       </div>
     </section>
 
@@ -410,10 +456,12 @@ button.action:hover{opacity:.85}
           <span class="readout" id="descCounter">0w</span>
         </div>
         <textarea id="description" rows="4" placeholder="Plain language: what starts, what's covered, what students do or hear."></textarea>
+        <div class="field-help">Aim for roughly 50–85 words — that's what fits a poster description without cramming or leaving it thin. The counter above turns red outside that range as a nudge, not a hard rule.</div>
       </div>
       <div class="field">
         <div class="field-head"><label for="audience" class="required">Audience</label></div>
-        <input type="text" id="audience" placeholder="e.g. all students, final-year business majors">
+        <textarea rows="1" class="grow" id="audience" placeholder="e.g. all students, final-year business majors"></textarea>
+        <div class="field-help">Be as specific as the event actually is — "all students" only if it truly is open to everyone. A narrower answer here (e.g. "engineering seniors") shapes how the designer targets the copy.</div>
       </div>
       <div class="field">
         <div class="field-head"><label>Skill level</label></div>
@@ -422,6 +470,7 @@ button.action:hover{opacity:.85}
           <button type="button" data-v="Intermediate" aria-pressed="false">Intermediate</button>
           <button type="button" data-v="Advanced" aria-pressed="false">Advanced</button>
         </div>
+        <div class="field-help">Select every level this event genuinely suits — you can pick more than one (e.g. Beginner + Advanced for something with an easy on-ramp and real depth). Leave all unselected if skill level doesn't apply. This changes how the poster phrases who it's for.</div>
       </div>
       <div class="field">
         <div class="field-head"><label for="regStatus" class="required">Registration</label></div>
@@ -431,18 +480,21 @@ button.action:hover{opacity:.85}
           <option value="Registration required — link not ready yet">Registration required — link not ready yet</option>
           <option value="Not sure yet">Not sure yet</option>
         </select>
+        <div class="field-help">Pick "link not ready yet" rather than waiting to submit this form — the designer can start the poster without it and drop the link in later.</div>
       </div>
       <div class="field" id="regUrlWrap" hidden>
         <div class="field-head"><label for="regUrl">Registration link</label></div>
-        <input type="url" id="regUrl" placeholder="https://">
+        <textarea rows="1" class="grow" id="regUrl" placeholder="https://"></textarea>
       </div>
       <div class="field">
         <div class="field-head"><label for="cta">Optional call-to-action</label></div>
-        <input type="text" id="cta">
+        <textarea rows="1" class="grow" id="cta" placeholder="e.g. Bring your resume for a live review"></textarea>
+        <div class="field-help">A short prompt beyond just registering or showing up — something for people to actually do. Leave blank if there isn't one.</div>
       </div>
       <div class="field">
         <div class="field-head"><label for="visualNotes">Visual ideas</label></div>
         <textarea id="visualNotes" rows="2" placeholder="Optional — object, feeling, colour"></textarea>
+        <div class="field-help">Loose associations are fine — a mood, an object, a colour that fits the event. The designer isn't bound by this, it's just a starting point.</div>
       </div>
     </section>
 
@@ -451,24 +503,27 @@ button.action:hover{opacity:.85}
       <div class="field">
         <div class="field-head"><label for="whyBenefit" class="required">Who benefits, and why now?</label></div>
         <textarea id="whyBenefit" rows="3" placeholder="Be specific — not 'students' in general."></textarea>
+        <div class="field-help">Name the actual group this matters most to — a major, a class year, students job-hunting this semester — and why the timing makes it relevant right now rather than any other week. This is what earns the event a spot on someone's calendar.</div>
       </div>
       <div class="field">
         <div class="field-head"><label for="firstTimer" class="required">First-time visitor takeaway</label></div>
-        <textarea id="firstTimer" rows="3"></textarea>
+        <textarea id="firstTimer" rows="3" placeholder="e.g. Leaves with a one-page resume checklist they can act on immediately"></textarea>
+        <div class="field-help">Picture a student who's never been to a Career Services event and knows nothing about this topic. What's the one concrete thing they walk away with — a skill, an answer, a next step? Not "learns about interviews" — what specifically changes for them by the end.</div>
       </div>
       <div class="field">
         <div class="field-head"><label for="sensitivity">Needs careful framing?</label></div>
-        <textarea id="sensitivity" rows="2" placeholder="Optional — flag it here rather than after the poster's live"></textarea>
+        <textarea id="sensitivity" rows="2" placeholder="Optional — e.g. covers layoffs/job loss, touches religion or politics, speaker is controversial, comparisons across majors or nationalities"></textarea>
+        <div class="field-help">Flag anything the designer should frame carefully rather than word casually — topics tied to grief, mental health, job loss, or financial hardship; religious, political, or cultural content; comparisons that could read as favoring one major, nationality, or group over another; a speaker or sponsor with any public controversy attached; or content aimed at a specific identity group that needs to be worded with care. If in doubt, flag it here rather than after the poster's already live.</div>
       </div>
     </section>
 
-  </aside>
+  </main>
 
-  <main class="stage">
-    <div class="stage-bar">
+  <aside class="preview-panel">
+    <div class="preview-head">
       <span class="stat">Live preview</span>
       <span class="spacer"></span>
-      <button class="action" id="exportBtn">Export .md</button>
+      <button class="action ghost" id="previewToggle" type="button" style="padding:3px 8px;font-size:10px" aria-expanded="true">Hide</button>
     </div>
     <div class="route-bar">
       <span class="step">Export, attach, then send to</span>
@@ -476,10 +531,10 @@ button.action:hover{opacity:.85}
       <button class="action ghost" id="copyEmailBtn" type="button" style="padding:3px 8px;font-size:10px">Copy</button>
     </div>
     <div class="notice" id="exportStatus" hidden style="margin:0 var(--space-4);margin-top:var(--space-3)"></div>
-    <div class="md-wrap">
+    <div class="md-wrap" id="mdWrap">
       <pre id="mdPreview"></pre>
     </div>
-  </main>
+  </aside>
 </div>
 
 <button class="lic-link" id="licOpen">Licences</button>
@@ -499,18 +554,6 @@ button.action:hover{opacity:.85}
 <script>
 const $ = id => document.getElementById(id);
 
-/* ---- staff directory (routing only) ---- */
-function getPoc(){
-  const v = $('pocSelect').value;
-  if (!v) return { name:'', email:'' };
-  if (v === 'other') return { name: $('pocOtherName').value, email:'' };
-  const [name, email] = v.split('|');
-  return { name, email };
-}
-$('pocSelect').addEventListener('change', () => {
-  $('pocOtherWrap').hidden = $('pocSelect').value !== 'other';
-  renderMarkdown();
-});
 
 /* ---- event type + hybrid exclusivity ----
    Interactive Lecture already blends lecture and workshop, so it cannot be
@@ -596,7 +639,7 @@ function getEventType(){
   return v;
 }
 function buildMarkdown(){
-  const poc = getPoc(), skills = getSkillLevels();
+  const skills = getSkillLevels();
   const title = mdEscape($('titleIdea').value) || 'Untitled Event';
   const lines = [
     '# Event Intake — ' + title, '',
@@ -623,9 +666,7 @@ function buildMarkdown(){
     '## Make the Case',
     '- Who benefits & why now: ' + (mdEscape($('whyBenefit').value) || 'Not provided'),
     '- First-time-visitor takeaway: ' + (mdEscape($('firstTimer').value) || 'Not provided'),
-    '- Sensitive framing notes: ' + (mdEscape($('sensitivity').value) || 'None flagged'), '',
-    '## Internal Routing (not for poster/social/visual output)',
-    '- Point of Contact: ' + (poc.name || 'Not provided') + (poc.email ? ' (' + poc.email + ')' : '')
+    '- Sensitive framing notes: ' + (mdEscape($('sensitivity').value) || 'None flagged')
   ];
   return lines.join('\n');
 }
@@ -668,6 +709,26 @@ $('copyEmailBtn').addEventListener('click', async () => {
 
 updateWordCounter();
 renderMarkdown();
+
+/* ---- "grow" fields: start at one line, wrap and expand as content
+   grows, then scroll internally past a few lines instead of pushing
+   the rest of the form down indefinitely ---- */
+function autoGrow(el){
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 160) + 'px';
+}
+document.querySelectorAll('textarea.grow').forEach(t => {
+  t.addEventListener('input', () => autoGrow(t));
+  autoGrow(t);
+});
+
+/* ---- preview collapse: the live preview is a reference, not the task,
+   so it can be tucked away without losing the form's place ---- */
+$('previewToggle').addEventListener('click', () => {
+  const collapsed = $('appRoot').classList.toggle('preview-collapsed');
+  $('previewToggle').textContent = collapsed ? 'Show' : 'Hide';
+  $('previewToggle').setAttribute('aria-expanded', String(!collapsed));
+});
 
 /* =========================================================================
    LICENCES — same texts as the rest of this repository (one project, one
