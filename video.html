@@ -1,0 +1,1437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Video Raster — Career Services</title>
+<style>
+@font-face{font-family:"Uncut Sans";src:url("fonts/UncutSans-Variable.woff2") format("woff2");font-weight:300 700;font-style:normal;font-display:swap}
+@font-face{font-family:"Geist Mono";src:url("fonts/GeistMono-Variable.woff2") format("woff2");font-weight:100 900;font-style:normal;font-display:swap}
+:root{
+  /* Core brand palette */
+  --anchor-blue:#307FE2;
+  --link-pink:#EB6FBD;
+  --open-mint:#47D7AC;
+  --signal-yellow:#E3E935;
+  --bright-orange:#EE5340;
+  --framework-gray:#B2B4B2;
+  --light-concrete:#D9D9D6;
+  --core-black:#1E2021;
+  --white:#FFFFFF;
+
+  /* UI roles */
+  --color-bg:var(--white);
+  --color-surface:var(--white);
+  --color-sunk:#F4F4F2;
+  --color-text:var(--core-black);
+  --color-muted:#6E7273;
+  --color-line:var(--light-concrete);
+  --color-line-strong:var(--core-black);
+  --color-accent:var(--anchor-blue);
+  --color-warn:#8A3A2C;
+  --color-warn-bg:#FDEDEA;
+
+  --font-ui:"Uncut Sans",system-ui,sans-serif;
+  --font-mono:"Geist Mono",ui-monospace,monospace;
+
+  --radius-control:0;
+  --track:1px;
+  --thumb:12px;
+
+  --space-1:4px;
+  --space-2:8px;
+  --space-3:12px;
+  --space-4:20px;
+  --space-5:32px;
+  --space-6:48px;
+
+  --ease-snap:cubic-bezier(.2,0,0,1);
+  --dur:120ms;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family:var(--font-ui);
+  font-size:13px;
+  line-height:1.45;
+  color:var(--color-text);
+  background:var(--color-bg);
+  -webkit-font-smoothing:antialiased;
+}
+[hidden]{display:none !important}
+
+/* ---- masthead: mirrors the deck's running header ---- */
+.masthead{
+  display:flex;align-items:center;gap:var(--space-3);
+  height:34px;padding:0 var(--space-4);
+  border-bottom:1px solid var(--color-line-strong);
+  font-family:var(--font-mono);font-size:11px;font-weight:500;
+  letter-spacing:.09em;text-transform:uppercase;
+  white-space:nowrap;overflow:hidden;
+}
+.masthead .arrow{color:var(--color-muted)}
+.masthead .spacer{flex:1;min-width:var(--space-2)}
+.masthead .dim{color:var(--color-muted)}
+
+.app{display:grid;grid-template-columns:316px 1fr;height:calc(100vh - 34px);height:calc(100dvh - 34px)}
+
+/* ---- panel ---- */
+.panel{
+  background:var(--color-surface);
+  border-right:1px solid var(--color-line-strong);
+  overflow-y:auto;
+}
+.group{padding:var(--space-4);border-bottom:1px solid var(--color-line)}
+.group:last-child{border-bottom:0}
+.group>h2{
+  margin:0 0 var(--space-3);
+  font-family:var(--font-mono);font-size:10px;font-weight:500;
+  letter-spacing:.11em;text-transform:uppercase;color:var(--color-muted);
+}
+
+/* ---- drop zone ---- */
+.drop{
+  position:relative;
+  border:1px solid var(--color-line-strong);
+  padding:var(--space-5) var(--space-3);
+  text-align:center;cursor:pointer;color:var(--color-muted);
+  background-color:var(--color-surface);
+  background-image:
+    linear-gradient(var(--color-line) 1px,transparent 1px),
+    linear-gradient(90deg,var(--color-line) 1px,transparent 1px);
+  background-size:14px 14px;background-position:center;
+}
+.drop:hover,.drop.over{border-color:var(--color-accent);color:var(--color-accent)}
+.drop.over{background-color:var(--color-sunk)}
+.drop strong{display:block;color:var(--color-text);font-weight:500}
+.drop span{position:relative;background:var(--color-surface);padding:0 var(--space-2)}
+.filemeta{margin-top:var(--space-2);font-family:var(--font-mono);font-size:11px;color:var(--color-muted)}
+.filemeta b{color:var(--color-text);font-weight:500}
+
+/* ---- fields ---- */
+.field{margin-bottom:var(--space-4)}
+.field:last-child{margin-bottom:0}
+.field-head{display:flex;justify-content:space-between;align-items:baseline;gap:var(--space-2);margin-bottom:var(--space-2)}
+.field-head label{font-size:12px}
+.readout{
+  font-family:var(--font-mono);font-size:11px;color:var(--color-text);
+  white-space:nowrap;font-variant-numeric:tabular-nums;
+}
+.readout em{font-style:normal;color:var(--color-muted)}
+
+/* ---- slider: 1px rule, square thumb, filled left half ---- */
+.slider{position:relative;height:18px;display:flex;align-items:center}
+.slider::before{
+  content:"";position:absolute;left:0;right:0;height:var(--track);
+  background:var(--color-line);
+}
+.slider::after{
+  content:"";position:absolute;left:0;height:var(--track);
+  width:var(--fill,0%);background:var(--color-text);
+}
+.slider input[type=range]{
+  -webkit-appearance:none;appearance:none;position:relative;
+  width:100%;height:18px;margin:0;background:transparent;cursor:pointer;
+}
+.slider input[type=range]::-webkit-slider-runnable-track{height:var(--track);background:transparent}
+.slider input[type=range]::-moz-range-track{height:var(--track);background:transparent}
+.slider input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:var(--thumb);height:var(--thumb);
+  margin-top:calc((var(--thumb) / -2) + (var(--track) / 2));
+  background:var(--color-text);border:0;border-radius:0;
+}
+.slider input[type=range]::-moz-range-thumb{
+  width:var(--thumb);height:var(--thumb);background:var(--color-text);
+  border:0;border-radius:0;
+}
+.slider input[type=range]:focus-visible::-webkit-slider-thumb{outline:2px solid var(--color-accent);outline-offset:2px}
+.slider.disabled{opacity:.35;pointer-events:none}
+
+/* ---- segmented ---- */
+.seg{display:flex;border:1px solid var(--color-line-strong)}
+.seg button{
+  flex:1;border:0;background:var(--color-surface);color:var(--color-muted);
+  font:inherit;font-size:12px;padding:6px var(--space-2);cursor:pointer;
+  border-radius:0;
+}
+.seg button+button{border-left:1px solid var(--color-line-strong)}
+.seg button[aria-pressed=true]{background:var(--color-text);color:var(--white)}
+.seg.mini{width:72px}
+.seg.mini button{font-family:var(--font-mono);font-size:10px;padding:2px var(--space-2)}
+
+/* ---- toggle: rectangle, square knob, snap ease ---- */
+.toggle{display:flex;align-items:center;justify-content:space-between;gap:var(--space-3)}
+.toggle label{font-size:12px}
+.switch{
+  width:34px;height:18px;flex:none;padding:0;position:relative;cursor:pointer;
+  border:1px solid var(--color-line-strong);background:var(--color-surface);border-radius:0;
+}
+.switch::after{
+  content:"";position:absolute;top:1px;left:1px;width:14px;height:14px;
+  background:var(--color-text);
+  transition:transform var(--dur) var(--ease-snap),background var(--dur) var(--ease-snap);
+}
+.switch[aria-pressed=true]{background:var(--color-text);border-color:var(--color-text)}
+.switch[aria-pressed=true]::after{transform:translateX(16px);background:var(--white)}
+.switch:focus-visible{outline:2px solid var(--color-accent);outline-offset:2px}
+
+/* ---- colour select ---- */
+.select{position:relative}
+.select-trigger{
+  width:100%;display:flex;align-items:center;gap:var(--space-2);
+  padding:6px var(--space-2);cursor:pointer;border-radius:0;
+  border:1px solid var(--color-line-strong);background:var(--color-surface);
+  font:inherit;font-size:12px;color:var(--color-text);text-align:left;
+}
+.select-trigger:hover{border-color:var(--color-text)}
+.select-trigger:focus-visible{outline:2px solid var(--color-accent);outline-offset:2px}
+.select-value{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.select-caret{
+  flex:none;font-family:var(--font-mono);font-size:9px;color:var(--color-muted);
+  transition:transform var(--dur) var(--ease-snap);
+}
+.select-trigger[aria-expanded=true] .select-caret{transform:rotate(180deg)}
+.select-list{
+  border:1px solid var(--color-line-strong);border-top:0;
+  max-height:242px;overflow-y:auto;overscroll-behavior:contain;
+  background:var(--color-surface);
+}
+.select-group{
+  font-family:var(--font-mono);font-size:9px;letter-spacing:.11em;text-transform:uppercase;
+  color:var(--color-muted);padding:var(--space-2) var(--space-2) var(--space-1);
+  border-bottom:1px solid var(--color-line);background:var(--color-sunk);
+  position:sticky;top:0;z-index:1;
+}
+.select-option{
+  width:100%;display:flex;align-items:center;gap:var(--space-2);
+  padding:5px var(--space-2);cursor:pointer;border:0;border-radius:0;
+  background:var(--color-surface);font:inherit;font-size:12px;
+  color:var(--color-text);text-align:left;
+}
+.select-option:hover,.select-option.active{background:var(--color-sunk)}
+.select-option[aria-selected=true]{background:var(--color-text);color:var(--white)}
+.select-option[aria-selected=true] .sw{box-shadow:0 0 0 1px var(--white)}
+.sw{
+  flex:none;width:14px;height:14px;border:1px solid var(--color-line);
+  background-color:var(--color-surface);
+}
+.sw.transparent{
+  background-image:linear-gradient(45deg,var(--color-line) 25%,transparent 25%,transparent 75%,var(--color-line) 75%),
+                   linear-gradient(45deg,var(--color-line) 25%,transparent 25%,transparent 75%,var(--color-line) 75%);
+  background-size:8px 8px;background-position:0 0,4px 4px;
+}
+
+/* ---- stage ---- */
+.stage{display:flex;flex-direction:column;min-width:0}
+.stage-bar{
+  display:flex;align-items:center;gap:var(--space-4);
+  padding:var(--space-3) var(--space-4);border-bottom:1px solid var(--color-line);
+}
+.stage-bar .spacer{flex:1}
+.stat{font-family:var(--font-mono);font-size:11px;color:var(--color-muted);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.stat b{color:var(--color-text);font-weight:500}
+button.action{
+  font-family:var(--font-mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;
+  padding:7px var(--space-3);border-radius:0;
+  border:1px solid var(--color-text);background:var(--color-text);color:var(--white);cursor:pointer;
+}
+button.action.ghost{background:var(--color-surface);color:var(--color-text)}
+button.action:disabled{opacity:.3;cursor:default}
+button.action:focus-visible{outline:2px solid var(--color-accent);outline-offset:2px}
+
+.viewport{flex:1;min-height:0;display:grid;place-items:center;padding:var(--space-5);overflow:auto}
+#preview{max-width:100%;max-height:100%;outline:1px solid var(--color-line)}
+.empty{color:var(--color-muted);text-align:center;max-width:36ch;font-size:12px}
+.notice{padding:var(--space-2) var(--space-3);background:var(--color-warn-bg);color:var(--color-warn);font-size:11px;font-family:var(--font-mono);line-height:1.5}
+.group .notice{margin-top:var(--space-2)}
+.stage .notice{margin:var(--space-3) var(--space-4) 0}
+
+/* ---- scrubber ---- */
+.scrub{
+  display:flex;align-items:center;gap:var(--space-3);
+  padding:var(--space-3) var(--space-4);border-top:1px solid var(--color-line);
+}
+.scrub .slider{flex:1}
+.scrub .readout{flex:none}
+
+/* ---- render progress ---- */
+.progress{
+  height:2px;background:var(--color-line);position:relative;overflow:hidden;
+}
+.progress span{
+  position:absolute;inset:0 auto 0 0;width:var(--pct,0%);
+  background:var(--color-accent);transition:width 80ms linear;
+}
+.render-row{display:flex;align-items:center;gap:var(--space-3);padding:var(--space-3) var(--space-4)}
+.render-row .readout{flex:1}
+
+@media (max-width:860px){
+  .app{grid-template-columns:1fr;height:auto}
+  .panel{border-right:0;border-bottom:1px solid var(--color-line-strong);order:2;overflow-y:visible}
+  .stage{order:1;height:60vh;min-height:340px}
+  .stage-bar{flex-wrap:wrap;row-gap:var(--space-2)}
+  .stage-bar .spacer{flex-basis:100%;height:0}
+}
+@media (max-width:560px){
+  .masthead{gap:var(--space-2);padding:0 var(--space-3);font-size:10px}
+  .masthead #buildStamp{display:none}
+  .group{padding:var(--space-3)}
+  .viewport{padding:var(--space-3)}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none !important}}
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <span>Career Services</span>
+  <span class="arrow">&#8594;</span>
+  <span>Video Raster</span>
+  <span class="dim">&#183; test build</span>
+  <span class="spacer"></span>
+  <span class="dim" id="buildStamp">Build 1</span>
+</header>
+
+<div class="app">
+  <aside class="panel">
+
+    <section class="group">
+      <h2>Source</h2>
+      <div class="drop" id="drop" tabindex="0" role="button">
+        <strong>Drop a video</strong>
+        <span>or click to browse &#183; MP4, MOV</span>
+      </div>
+      <input type="file" id="file" accept="video/mp4,video/quicktime,.mp4,.mov" hidden>
+      <div class="filemeta" id="filemeta" hidden></div>
+      <div class="notice" id="fileError" hidden></div>
+    </section>
+
+    <section class="group">
+      <h2>Raster</h2>
+      <div class="seg" id="glyphMode">
+        <button data-v="plus" aria-pressed="true">Node</button>
+        <button data-v="square" aria-pressed="false">Grid</button>
+      </div>
+      <div class="field toggle" id="flushField" hidden style="margin-top:var(--space-3)">
+        <label for="squareFlush">Fill cell at black</label>
+        <button class="switch" id="squareFlush" aria-pressed="false" aria-label="Fill cell at black"></button>
+      </div>
+    </section>
+
+    <section class="group">
+      <h2>Output</h2>
+      <div class="field">
+        <div class="field-head"><label>Mode</label></div>
+        <div class="seg" id="mode">
+          <button data-v="bw" aria-pressed="false">Black &amp; white</button>
+          <button data-v="gray" aria-pressed="true">Grayscale</button>
+        </div>
+      </div>
+      <div class="field" id="thresholdField" hidden>
+        <div class="field-head">
+          <label for="threshold">Threshold</label>
+          <span class="readout" id="thresholdOut">50%</span>
+        </div>
+        <div class="slider"><input type="range" id="threshold" min="0" max="100" step="1" value="50"></div>
+      </div>
+    </section>
+
+    <section class="group">
+      <h2>Scale</h2>
+      <div class="field">
+        <div class="field-head">
+          <label for="scale">Grid density</label>
+          <span class="readout" id="scaleOut">&#8212;</span>
+        </div>
+        <div class="slider disabled" id="scaleWrap"><input type="range" id="scale" min="5" max="100" step="1" value="25" disabled></div>
+      </div>
+      <div class="notice" id="capNotice" hidden></div>
+    </section>
+
+    <section class="group">
+      <h2>Tone</h2>
+      <div class="field">
+        <div class="field-head"><label for="brightness">Brightness</label><span class="readout" id="brightnessOut">0</span></div>
+        <div class="slider"><input type="range" id="brightness" min="-100" max="100" step="1" value="0"></div>
+      </div>
+      <div class="field">
+        <div class="field-head"><label for="contrast">Contrast</label><span class="readout" id="contrastOut">0</span></div>
+        <div class="slider"><input type="range" id="contrast" min="-100" max="100" step="1" value="0"></div>
+      </div>
+      <div class="field">
+        <div class="field-head"><label for="gamma">Gamma</label><span class="readout" id="gammaOut">1.00</span></div>
+        <div class="slider"><input type="range" id="gamma" min="0" max="1000" step="1" value="500"></div>
+      </div>
+      <div class="field toggle">
+        <label for="invert">Invert</label>
+        <button class="switch" id="invert" aria-pressed="false" aria-label="Invert"></button>
+      </div>
+    </section>
+
+    <section class="group">
+      <h2>Colour</h2>
+      <div class="field">
+        <div class="field-head"><label id="inkLabel">Raster</label></div>
+        <div class="select" id="inkSelect"></div>
+      </div>
+      <div class="field">
+        <div class="field-head"><label id="bgLabel">Background</label></div>
+        <div class="select" id="bgSelect"></div>
+      </div>
+      <div class="notice" id="contrastNotice" hidden></div>
+    </section>
+
+    <section class="group">
+      <h2>Temporal</h2>
+      <div class="field">
+        <div class="field-head">
+          <label for="smooth">Frame smoothing</label>
+          <span class="readout" id="smoothOut">0%</span>
+        </div>
+        <div class="slider"><input type="range" id="smooth" min="0" max="90" step="5" value="0"></div>
+        <p style="margin:var(--space-2) 0 0;font-size:11px;color:var(--color-muted)">
+          Blends each cell's brightness with the previous frame's. Reduces the
+          crawling that a fixed grid produces on moving footage.
+        </p>
+      </div>
+    </section>
+
+    <section class="group">
+      <h2>Export</h2>
+      <div class="field">
+        <div class="field-head"><label>Frame rate</label><span class="readout" id="fpsOut">24 fps</span></div>
+      </div>
+      <div class="field">
+        <div class="field-head"><label>Quality</label></div>
+        <div class="seg" id="quality">
+          <button data-v="draft" aria-pressed="false">Draft</button>
+          <button data-v="standard" aria-pressed="true">Standard</button>
+          <button data-v="high" aria-pressed="false">High</button>
+        </div>
+      </div>
+      <div class="readout" id="exportOut" style="margin-top:var(--space-2)">&#8212;</div>
+    </section>
+
+  </aside>
+
+  <main class="stage">
+    <div class="stage-bar">
+      <span class="stat" id="statGrid">&#8212;</span>
+      <span class="stat" id="statOut"></span>
+      <span class="spacer"></span>
+      <button class="action ghost" id="exportFrame" disabled>Frame PNG</button>
+      <button class="action" id="render" disabled>Render MP4</button>
+    </div>
+    <div class="notice" id="stageNotice" hidden></div>
+    <div class="progress" id="progressBar" hidden><span></span></div>
+    <div class="render-row" id="renderRow" hidden>
+      <span class="readout" id="renderOut"></span>
+      <button class="action ghost" id="cancel">Cancel</button>
+    </div>
+    <div class="viewport">
+      <canvas id="preview" hidden></canvas>
+      <p class="empty" id="emptyState">Drop an MP4 or MOV to build a raster. Everything is processed in this browser &#8212; nothing is uploaded.</p>
+    </div>
+    <div class="scrub" id="scrubRow" hidden>
+      <span class="readout">Preview</span>
+      <div class="slider"><input type="range" id="scrub" min="0" max="1000" step="1" value="0"></div>
+      <span class="readout" id="scrubOut">0.00s</span>
+    </div>
+  </main>
+</div>
+
+<button class="lic-link" id="licOpen">Licences</button>
+<div class="lic-overlay" id="licOverlay" hidden role="dialog" aria-modal="true" aria-labelledby="licTitle">
+  <div class="lic-panel">
+    <div class="lic-head">
+      <span id="licTitle">Licences</span>
+      <span class="spacer"></span>
+      <button class="lic-close" id="licClose" aria-label="Close">&#10005;</button>
+    </div>
+    <div class="lic-tabs" id="licTabs" role="tablist"></div>
+    <div class="lic-body" id="licBody" tabindex="0"></div>
+  </div>
+</div>
+
+<script>
+/* ============================================================================
+   Video Raster — Department of Career Services
+   Test build. Frame-accurate: the source is seeked to n/fps for each output
+   frame, rasterised, and encoded. Nothing is captured in real time, so the
+   result is deterministic regardless of playback performance.
+   ========================================================================= */
+
+/* ---- constants (tune here, not in the UI) ------------------------------- */
+const PT_MM         = 25.4 / 72;
+const B_MM          = 8;
+const GAP_RATIO     = 0.25;
+const PITCH         = B_MM * (1 + GAP_RATIO);
+const BG_TAPER_T    = 0.3125;
+const FG_STROKE_PT  = 1;
+const BG_STROKE_PT  = 0.25;
+const FG_MAX_MM     = B_MM;
+const T_MIN         = 0.02;
+const MAX_GRID_SHORT = 400;
+const QUANT_MM      = 0.005;
+const SQ_CELL_MM    = 9;
+const SQ_GAP_MAX_MM = 8;
+const PNG_MAX_PX    = 8192;
+const PNG_DPI       = { screen: 150, print: 300 };
+const PNG_SOFT_PX   = 1.5;         // thinnest feature below this reads soft
+const CONTRAST_MIN  = 0.18;
+
+const pitchFor = glyph => glyph === 'square' ? SQ_CELL_MM : PITCH;
+const squareMax = flush => flush ? SQ_CELL_MM : SQ_GAP_MAX_MM;
+
+/* ---- palettes ----------------------------------------------------------- */
+const CORE = [
+  { name:'Anchor Blue',     hex:'#307FE2' },
+  { name:'Link Pink',       hex:'#EB6FBD' },
+  { name:'Open Mint',       hex:'#47D7AC' },
+  { name:'Signal Yellow',   hex:'#E3E935' },
+  { name:'Bright Orange',   hex:'#EE5340' },
+  { name:'Framework Gray',  hex:'#B2B4B2' },
+  { name:'Light Concrete',  hex:'#D9D9D6' },
+  { name:'Core Black',      hex:'#1E2021' },
+  { name:'White',           hex:'#FFFFFF' }
+];
+const AUS = [
+  { name:'AUS Corporate Red', hex:'#983222' },
+  { name:'CAAD Accent',       hex:'#9DABE2' },
+  { name:'CAS Accent',        hex:'#988642' },
+  { name:'CEN Accent',        hex:'#DF7A00' },
+  { name:'SBA Accent',        hex:'#8BA69C' },
+  { name:'AUS Gray',          hex:'#4D4F53' },
+  { name:'AUS Black',         hex:'#000000' }
+];
+const NO_FILL = [{ name:'Transparent', hex:null }];
+
+/* Groups in deck order: Career Services first, then AUS. */
+const groupsFor = kind => kind === 'bg'
+  ? [['Career Services', CORE], ['AUS', AUS], ['No fill', NO_FILL]]
+  : [['Career Services', CORE], ['AUS', AUS]];
+
+/* ============================================================================
+   geometry — pure
+   ========================================================================= */
+function cellGeometry(t, p) {
+  if (p.mode === 'bw') {
+    if (t < p.threshold) return null;
+    return { bg: B_MM, bgStroke: BG_STROKE_PT * PT_MM, fg: FG_MAX_MM, fgStroke: FG_STROKE_PT * PT_MM };
+  }
+  if (t < T_MIN) return null;
+  const bg = t >= BG_TAPER_T ? B_MM : B_MM * (t / BG_TAPER_T);
+  return { bg, bgStroke: BG_STROKE_PT * PT_MM, fg: FG_MAX_MM * t, fgStroke: FG_STROKE_PT * PT_MM };
+}
+function squareSize(t, p) {
+  const max = squareMax(p.squareFlush);
+  if (p.mode === 'bw') return t < p.threshold ? 0 : max;
+  return t < T_MIN ? 0 : max * t;
+}
+const gridLongFrom = (gridShort, srcShort, srcLong) =>
+  Math.max(1, Math.round(gridShort * srcLong / srcShort));
+
+/* Thinnest ink feature in mm for the current settings — drives PNG sizing. */
+const SQ_FEATURE_T = 0.25;         // squares lighter than this are specks; ignore
+function thinnestFeatureMM(params) {
+  if (params.glyph === 'square') {
+    const max = squareMax(params.squareFlush);
+    return params.mode === 'bw' ? max : max * SQ_FEATURE_T;
+  }
+  return BG_STROKE_PT * PT_MM;      // the 0.25pt lattice hairline
+}
+
+/* ============================================================================
+   sampler — pure
+   ========================================================================= */
+const SRGB_TO_LIN = new Float32Array(256);
+for (let i = 0; i < 256; i++) {
+  const c = i / 255;
+  SRGB_TO_LIN[i] = c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+}
+const linToSrgb = v => v <= 0.0031308 ? v * 12.92 : 1.055 * Math.pow(v, 1 / 2.4) - 0.055;
+
+/* Rec. 709 luminance on linearised sRGB. Alpha composited over white. */
+function decodeSource(imageData) {
+  const { width: w, height: h, data } = imageData;
+  const lin = new Float32Array(w * h);
+  for (let i = 0, p = 0; i < lin.length; i++, p += 4) {
+    const a = data[p + 3] / 255;
+    const y = 0.2126 * SRGB_TO_LIN[data[p]] + 0.7152 * SRGB_TO_LIN[data[p + 1]] + 0.0722 * SRGB_TO_LIN[data[p + 2]];
+    lin[i] = a === 1 ? y : y * a + (1 - a);
+  }
+  return { w, h, lin };
+}
+
+function downsample(src, gw, gh, region) {
+  const { w, h, lin } = src;
+  const rx = region ? region.x : 0, ry = region ? region.y : 0;
+  const rw = region ? region.w : w,  rh = region ? region.h : h;
+  const out = new Float32Array(gw * gh);
+  for (let j = 0; j < gh; j++) {
+    const y0 = ry + Math.floor(j * rh / gh);
+    const y1 = Math.min(ry + rh, Math.max(y0 + 1, ry + Math.floor((j + 1) * rh / gh)));
+    for (let i = 0; i < gw; i++) {
+      const x0 = rx + Math.floor(i * rw / gw);
+      const x1 = Math.min(rx + rw, Math.max(x0 + 1, rx + Math.floor((i + 1) * rw / gw)));
+      let s = 0, n = 0;
+      for (let y = y0; y < y1; y++) {
+        const row = y * w;
+        for (let x = x0; x < x1; x++) { s += lin[row + x]; n++; }
+      }
+      out[j * gw + i] = linToSrgb(s / n);
+    }
+  }
+  return out;
+}
+
+function toneLUT({ brightness, contrast, gamma, invert }) {
+  const k = contrast >= 0 ? (100 + contrast) / 100 : 100 / (100 - contrast);
+  const lut = new Float32Array(1024);
+  for (let i = 0; i < 1024; i++) {
+    let v = i / 1023;
+    v = v + brightness / 100;
+    v = (v - 0.5) * k + 0.5;
+    v = Math.min(1, Math.max(0, v));
+    v = Math.pow(v, 1 / gamma);
+    if (invert) v = 1 - v;
+    lut[i] = Math.min(1, Math.max(0, v));
+  }
+  return lut;
+}
+function applyTone(grid, lut) {
+  const t = new Float32Array(grid.length);
+  for (let i = 0; i < grid.length; i++) t[i] = 1 - lut[(grid[i] * 1023) | 0];
+  return t;
+}
+
+/* ============================================================================
+   glyph walk — one traversal, shared by canvas / svg / png
+   ========================================================================= */
+function buildPlus(t, gw, gh, params) {
+  const buckets = new Map();
+  const push = (sw, cx, cy, size) => {
+    if (sw <= 0 || size <= 0) return;
+    const key = Math.max(QUANT_MM, Math.round(sw / QUANT_MM) * QUANT_MM);
+    let arr = buckets.get(key);
+    if (!arr) buckets.set(key, arr = []);
+    arr.push(cx, cy, size);
+  };
+  let drawn = 0;
+  for (let j = 0; j < gh; j++) {
+    for (let i = 0; i < gw; i++) {
+      const g = cellGeometry(t[j * gw + i], params);
+      if (!g) continue;
+      drawn++;
+      const cx = (i + 0.5) * PITCH, cy = (j + 0.5) * PITCH;
+      push(g.bgStroke, cx, cy, g.bg);
+      push(g.fgStroke, cx, cy, g.fg);
+    }
+  }
+  return { buckets, drawn };
+}
+function buildSquares(t, gw, gh, params) {
+  const cells = [];
+  for (let j = 0; j < gh; j++) {
+    for (let i = 0; i < gw; i++) {
+      const s = squareSize(t[j * gw + i], params);
+      if (s <= 0) continue;
+      cells.push((i + 0.5) * SQ_CELL_MM, (j + 0.5) * SQ_CELL_MM, s);
+    }
+  }
+  return { cells, drawn: cells.length / 3 };
+}
+
+/* ============================================================================
+   render — mm to px, used by both the preview and the PNG export
+   ========================================================================= */
+function renderTo(ctx, t, gw, gh, params, opts) {
+  const { scale, ink, paper, hairlineFloor } = opts;
+  const pitch = pitchFor(params.glyph);
+  if (paper) {
+    ctx.fillStyle = paper;
+    ctx.fillRect(0, 0, gw * pitch * scale, gh * pitch * scale);
+  }
+  if (params.glyph === 'square') {
+    const { cells, drawn } = buildSquares(t, gw, gh, params);
+    ctx.fillStyle = ink;
+    // Snap to whole device pixels. In flush mode adjacent cells abut exactly,
+    // and fractional edges would leave anti-aliased seams across solid areas.
+    for (let k = 0; k < cells.length; k += 3) {
+      const s = cells[k + 2] * scale, half = s / 2;
+      const x0 = Math.round(cells[k] * scale - half);
+      const y0 = Math.round(cells[k + 1] * scale - half);
+      const x1 = Math.round(cells[k] * scale + half);
+      const y1 = Math.round(cells[k + 1] * scale + half);
+      ctx.fillRect(x0, y0, Math.max(1, x1 - x0), Math.max(1, y1 - y0));
+    }
+    return drawn;
+  }
+  ctx.strokeStyle = ink;
+  ctx.lineCap = 'butt';
+  const { buckets, drawn } = buildPlus(t, gw, gh, params);
+  for (const [sw, cells] of buckets) {
+    const path = new Path2D();
+    for (let k = 0; k < cells.length; k += 3) {
+      const cx = cells[k] * scale, cy = cells[k + 1] * scale, half = cells[k + 2] * scale / 2;
+      path.moveTo(cx - half, cy); path.lineTo(cx + half, cy);
+      path.moveTo(cx, cy - half); path.lineTo(cx, cy + half);
+    }
+    ctx.lineWidth = hairlineFloor ? Math.max(sw * scale, hairlineFloor) : sw * scale;
+    ctx.stroke(path);
+  }
+  return drawn;
+}
+
+/* ============================================================================
+   svg — export string, true millimetres
+   ========================================================================= */
+function buildSVG(t, gw, gh, params) {
+  const pitch = pitchFor(params.glyph);
+  const wmm = +(gw * pitch).toFixed(3), hmm = +(gh * pitch).toFixed(3);
+  const ink = params.ink;
+  const head = '<?xml version="1.0" encoding="UTF-8"?>';
+  const open = attrs =>
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${wmm}mm" height="${hmm}mm" ` +
+    `viewBox="0 0 ${wmm} ${hmm}" ${attrs}>`;
+  const bgRect = params.paper
+    ? `<rect x="0" y="0" width="${wmm}" height="${hmm}" fill="${params.paper}" stroke="none"/>`
+    : '';
+
+  if (params.glyph === 'square') {
+    const { cells } = buildSquares(t, gw, gh, params);
+    const out = [head, open(`fill="${ink}" stroke="none"`)];
+    if (bgRect) out.push(bgRect);
+    for (let k = 0; k < cells.length; k += 3) {
+      const s = cells[k + 2], half = s / 2;
+      out.push(`<rect x="${(cells[k] - half).toFixed(3)}" y="${(cells[k + 1] - half).toFixed(3)}" ` +
+               `width="${s.toFixed(3)}" height="${s.toFixed(3)}"/>`);
+    }
+    out.push('</svg>');
+    return out.join('\n');
+  }
+
+  const { buckets } = buildPlus(t, gw, gh, params);
+  const out = [head, open(`fill="none" stroke="${ink}" stroke-linecap="butt"`)];
+  if (bgRect) out.push(bgRect);
+  const keys = [...buckets.keys()].sort((a, b) => a - b);
+  for (const sw of keys) {
+    const cells = buckets.get(sw), d = [];
+    for (let k = 0; k < cells.length; k += 3) {
+      const half = cells[k + 2] / 2, cx = cells[k], cy = cells[k + 1];
+      d.push(`M${(cx - half).toFixed(3)} ${cy.toFixed(3)}h${(half * 2).toFixed(3)}`);
+      d.push(`M${cx.toFixed(3)} ${(cy - half).toFixed(3)}v${(half * 2).toFixed(3)}`);
+    }
+    out.push(`<g stroke-width="${sw.toFixed(4)}"><path d="${d.join('')}"/></g>`);
+  }
+  out.push('</svg>');
+  return out.join('\n');
+}
+
+/* ============================================================================
+   png — resolution derived from the thinnest ink feature, not a DPI field
+   ========================================================================= */
+function pngPlan(gw, gh, params, intent) {
+  const pitch = pitchFor(params.glyph);
+  const wmm = gw * pitch, hmm = gh * pitch;
+  const feature = thinnestFeatureMM(params);
+  let scale = intent === 'max'
+    ? PNG_MAX_PX / Math.max(wmm, hmm)
+    : PNG_DPI[intent] / 25.4;
+  let w = Math.round(wmm * scale), h = Math.round(hmm * scale);
+  let clamped = false;
+  if (Math.max(w, h) > PNG_MAX_PX) {
+    const f = PNG_MAX_PX / Math.max(w, h);
+    w = Math.max(1, Math.round(w * f)); h = Math.max(1, Math.round(h * f));
+    scale = w / wmm; clamped = true;
+  }
+  w = Math.max(1, w); h = Math.max(1, h);
+  const featurePx = feature * scale;
+  return { w, h, scale, wmm, hmm, dpi: scale * 25.4, featurePx, clamped, soft: featurePx < PNG_SOFT_PX };
+}
+
+/* ============================================================================
+   colour helpers
+   ========================================================================= */
+function relLum(hex) {
+  const n = parseInt(hex.slice(1), 16);
+  const f = i => SRGB_TO_LIN[(n >> i) & 255];
+  return 0.2126 * f(16) + 0.7152 * f(8) + 0.0722 * f(0);
+}
+/* Value distance in linear light — enough to tell "will this vanish?". */
+function paletteContrast(inkHex, paperHex) {
+  if (!paperHex) return 1;                     // transparent: always legible
+  return Math.abs(relLum(inkHex) - relLum(paperHex));
+}
+
+/* ============================================================================
+   Minimal MP4 muxer — single H.264 video track, constant frame rate.
+   Takes encoded chunks from WebCodecs VideoEncoder and writes a playable
+   .mp4. No dependencies, no network.
+
+   Layout: ftyp / mdat / moov. moov trails the media data, which means the
+   file is not progressively streamable, but it plays everywhere once
+   downloaded and it lets us write samples as they arrive.
+   ========================================================================= */
+
+function createMp4Muxer({ width, height, fps, description }) {
+  const timescale = fps * 1000;        // exact frame durations, no rounding drift
+  const frameDur  = 1000;
+  const samples = [];                  // { size, keyframe, cts }
+  const chunks  = [];                  // Uint8Array payloads
+
+  /* timestamp is the chunk's presentation time in microseconds. Encoders may
+     emit chunks in decode order, so we keep it and derive ctts below. */
+  function addChunk(data, keyframe, timestamp) {
+    chunks.push(data);
+    const cts = timestamp === undefined
+      ? samples.length * frameDur
+      : Math.round(timestamp * timescale / 1e6);
+    samples.push({ size: data.byteLength, keyframe, cts });
+  }
+
+  /* ---- byte helpers ---- */
+  const u8  = n => [n & 255];
+  const u16 = n => [(n >> 8) & 255, n & 255];
+  const u32 = n => [(n >> 24) & 255, (n >> 16) & 255, (n >> 8) & 255, n & 255];
+  const str = s => [...s].map(c => c.charCodeAt(0));
+  const box = (type, ...parts) => {
+    const body = parts.flat();
+    return [...u32(body.length + 8), ...str(type), ...body];
+  };
+  const fullBox = (type, version, flags, ...parts) =>
+    box(type, u8(version), [(flags >> 16) & 255, (flags >> 8) & 255, flags & 255], parts.flat());
+
+  function build() {
+    const mdatSize = samples.reduce((a, s) => a + s.size, 0);
+    const duration = samples.length * frameDur;
+
+    const ftyp = box('ftyp', str('isom'), u32(512), str('isom'), str('iso2'), str('avc1'), str('mp41'));
+
+    // mdat header is 8 bytes; sample offsets are relative to file start
+    const mdatHeaderSize = 8;
+    const mdatOffset = ftyp.length + mdatHeaderSize;
+
+    /* ---- sample tables ---- */
+    const stts = fullBox('stts', 0, 0, u32(1), u32(samples.length), u32(frameDur));
+
+    /* Composition offsets. Zero for every sample when the encoder emits no
+       B-frames, in which case the box is omitted entirely. */
+    const offsetsCts = samples.map((s, i) => s.cts - i * frameDur);
+    const needsCtts = offsetsCts.some(o => o !== 0);
+    let ctts = [];
+    if (needsCtts) {
+      const runs = [];
+      for (const o of offsetsCts) {
+        const last = runs[runs.length - 1];
+        if (last && last[1] === o) last[0]++;
+        else runs.push([1, o]);
+      }
+      // version 1 allows signed offsets, which B-frames require
+      ctts = fullBox('ctts', 1, 0, u32(runs.length),
+                     runs.flatMap(([n, o]) => [...u32(n), ...u32(o >>> 0)]));
+    }
+
+    const keyIdx = [];
+    samples.forEach((s, i) => { if (s.keyframe) keyIdx.push(i + 1); });
+    const stss = fullBox('stss', 0, 0, u32(keyIdx.length), keyIdx.flatMap(u32));
+
+    const stsz = fullBox('stsz', 0, 0, u32(0), u32(samples.length),
+                         samples.flatMap(s => u32(s.size)));
+
+    // one sample per chunk keeps offsets trivial and exact
+    const stsc = fullBox('stsc', 0, 0, u32(1), u32(1), u32(1), u32(1));
+
+    let running = mdatOffset;
+    const offsets = samples.map(s => { const o = running; running += s.size; return o; });
+    const needs64 = running > 0xFFFFFFFF;
+    const stco = needs64
+      ? fullBox('co64', 0, 0, u32(offsets.length),
+          offsets.flatMap(o => [...u32(Math.floor(o / 4294967296)), ...u32(o >>> 0)]))
+      : fullBox('stco', 0, 0, u32(offsets.length), offsets.flatMap(u32));
+
+    const avcC = box('avcC', [...new Uint8Array(description)]);
+    const avc1 = box('avc1',
+      new Array(6).fill(0), u16(1),                    // reserved, data ref index
+      u16(0), u16(0), u32(0), u32(0), u32(0),          // pre_defined / reserved
+      u16(width), u16(height),
+      u32(0x00480000), u32(0x00480000),                // 72 dpi
+      u32(0), u16(1),
+      new Array(32).fill(0),                           // compressor name
+      u16(0x0018), u16(0xFFFF),                        // depth, -1
+      avcC);
+    const stsd = fullBox('stsd', 0, 0, u32(1), avc1);
+    const stbl = box('stbl', stsd, stts, ...(needsCtts ? [ctts] : []), stss, stsc, stsz, stco);
+
+    const vmhd = fullBox('vmhd', 0, 1, u16(0), u16(0), u16(0), u16(0));
+    const dref = fullBox('dref', 0, 0, u32(1), fullBox('url ', 0, 1));
+    const dinf = box('dinf', dref);
+    const minf = box('minf', vmhd, dinf, stbl);
+
+    const mdhd = fullBox('mdhd', 0, 0, u32(0), u32(0), u32(timescale), u32(duration), u16(0x55C4), u16(0));
+    const hdlr = fullBox('hdlr', 0, 0, u32(0), str('vide'), u32(0), u32(0), u32(0), str('VideoHandler'), u8(0));
+    const mdia = box('mdia', mdhd, hdlr, minf);
+
+    const tkhd = fullBox('tkhd', 0, 3,
+      u32(0), u32(0), u32(1), u32(0), u32(duration),
+      u32(0), u32(0), u16(0), u16(0), u16(0), u16(0),
+      u32(0x00010000), u32(0), u32(0),
+      u32(0), u32(0x00010000), u32(0),
+      u32(0), u32(0), u32(0x40000000),
+      u32(width << 16), u32(height << 16));
+    const trak = box('trak', tkhd, mdia);
+
+    const mvhd = fullBox('mvhd', 0, 0,
+      u32(0), u32(0), u32(timescale), u32(duration),
+      u32(0x00010000), u16(0x0100), u16(0), u32(0), u32(0),
+      u32(0x00010000), u32(0), u32(0),
+      u32(0), u32(0x00010000), u32(0),
+      u32(0), u32(0), u32(0x40000000),
+      u32(0), u32(0), u32(0), u32(0), u32(0), u32(0),
+      u32(2));
+    const moov = box('moov', mvhd, trak);
+
+    /* ---- assemble ---- */
+    const total = ftyp.length + mdatHeaderSize + mdatSize + moov.length;
+    const out = new Uint8Array(total);
+    let p = 0;
+    out.set(ftyp, p); p += ftyp.length;
+    out.set(new Uint8Array(u32(mdatHeaderSize + mdatSize)), p); p += 4;
+    out.set(new Uint8Array(str('mdat')), p); p += 4;
+    for (const c of chunks) { out.set(c, p); p += c.byteLength; }
+    out.set(moov, p);
+    return out;
+  }
+
+  return { addChunk, build, get frameCount() { return samples.length; } };
+}
+
+/* ============================================================================
+   Output frame rate.
+   OUTPUT_FPS is the single source of truth. FPS_OPTIONS is here for the
+   picker this will eventually grow — wiring it up means rendering a segmented
+   control over FPS_OPTIONS and assigning to OUTPUT_FPS. Nothing else changes.
+   ========================================================================= */
+const FPS_OPTIONS = [12, 24, 30, 60];
+let   OUTPUT_FPS  = 24;
+
+const MAX_OUT_LONG_PX = 1920;      // cap on the encoded long side
+const MAX_DURATION_S  = 120;       // refuse absurdly long test clips
+const BPP = { draft: 0.06, standard: 0.14, high: 0.28 };   // bits per pixel per frame
+const KEYFRAME_EVERY_S = 2;
+
+/* ============================================================================
+   UI
+   ========================================================================= */
+const $ = id => document.getElementById(id);
+const state = {
+  video:null, url:null, name:'', duration:0, srcW:0, srcH:0,
+  gridShort:0, gw:0, gh:0, capped:false,
+  glyph:'plus', squareFlush:false,
+  mode:'gray', threshold:0.5,
+  brightness:0, contrast:0, gamma:1, invert:false,
+  ink:'#1E2021', inkName:'Core Black',
+  paper:'#FFFFFF', paperName:'White',
+  smooth:0, quality:'standard',
+  previewT:0, rendering:false, cancelled:false,
+  prevGrid:null
+};
+
+/* ---- colour selects (same component as the still tool) ---- */
+function swatchEl(hex){
+  const sw=document.createElement('span');
+  sw.className='sw'+(hex===null?' transparent':'');
+  if(hex!==null) sw.style.background=hex;
+  return sw;
+}
+function buildSelect(rootId, kind, labelId){
+  const root=$(rootId); root.innerHTML='';
+  const trigger=document.createElement('button');
+  trigger.type='button'; trigger.className='select-trigger';
+  trigger.setAttribute('aria-haspopup','listbox');
+  trigger.setAttribute('aria-expanded','false');
+  trigger.setAttribute('aria-labelledby',labelId);
+  const tSw=swatchEl('#000');
+  const tVal=document.createElement('span'); tVal.className='select-value';
+  const caret=document.createElement('span'); caret.className='select-caret'; caret.textContent='\u25BC';
+  trigger.append(tSw,tVal,caret);
+  const list=document.createElement('div');
+  list.className='select-list'; list.setAttribute('role','listbox'); list.hidden=true;
+  const options=[];
+  groupsFor(kind).forEach(([groupName,colours])=>{
+    const g=document.createElement('div'); g.className='select-group'; g.textContent=groupName;
+    list.appendChild(g);
+    colours.forEach(c=>{
+      const o=document.createElement('button');
+      o.type='button'; o.className='select-option'; o.setAttribute('role','option');
+      o.dataset.hex=c.hex===null?'':c.hex; o.dataset.name=c.name;
+      const label=document.createElement('span'); label.textContent=c.name;
+      o.append(swatchEl(c.hex),label);
+      o.onclick=()=>{pick(kind,c.name,c.hex);close();trigger.focus();};
+      list.appendChild(o); options.push(o);
+    });
+  });
+  root.append(trigger,list);
+  let cursor=0;
+  function open(){list.hidden=false;trigger.setAttribute('aria-expanded','true');
+    cursor=Math.max(0,options.findIndex(o=>o.getAttribute('aria-selected')==='true'));
+    highlight();options[cursor].scrollIntoView({block:'nearest'});}
+  function close(){list.hidden=true;trigger.setAttribute('aria-expanded','false');
+    options.forEach(o=>o.classList.remove('active'));}
+  function highlight(){options.forEach((o,i)=>o.classList.toggle('active',i===cursor));}
+  function move(step){cursor=(cursor+step+options.length)%options.length;highlight();
+    options[cursor].scrollIntoView({block:'nearest'});}
+  trigger.onclick=()=>list.hidden?open():close();
+  trigger.onkeydown=e=>{if((e.key==='ArrowDown'||e.key==='Enter'||e.key===' ')&&list.hidden){e.preventDefault();open();}};
+  root.addEventListener('keydown',e=>{
+    if(list.hidden)return;
+    if(e.key==='Escape'){e.preventDefault();close();trigger.focus();}
+    else if(e.key==='ArrowDown'){e.preventDefault();move(1);}
+    else if(e.key==='ArrowUp'){e.preventDefault();move(-1);}
+    else if(e.key==='Home'){e.preventDefault();cursor=0;highlight();options[0].scrollIntoView({block:'nearest'});}
+    else if(e.key==='End'){e.preventDefault();cursor=options.length-1;highlight();options[cursor].scrollIntoView({block:'nearest'});}
+    else if(e.key==='Enter'||e.key===' '){e.preventDefault();options[cursor].click();}
+  });
+  document.addEventListener('click',e=>{if(!root.contains(e.target))close();});
+  return {sync(hex,name){
+    tVal.textContent=name;
+    tSw.className='sw'+(hex===null?' transparent':'');
+    tSw.style.background=hex===null?'':hex;
+    options.forEach(o=>o.setAttribute('aria-selected',String((o.dataset.hex||null)===hex)));
+  }};
+}
+let inkSelect,bgSelect;
+function pick(kind,name,hex){
+  if(kind==='ink'){ if(hex===null)return; state.ink=hex; state.inkName=name; }
+  else { state.paper=hex; state.paperName=name; }
+  syncColour(); drawPreview();
+}
+function syncColour(){
+  if(inkSelect)inkSelect.sync(state.ink,state.inkName);
+  if(bgSelect)bgSelect.sync(state.paper,state.paperName);
+  const weak=paletteContrast(state.ink,state.paper)<CONTRAST_MIN;
+  $('contrastNotice').hidden=!weak;
+  if(weak)$('contrastNotice').textContent=
+    `${state.inkName} on ${state.paperName} is very low contrast. The raster may be hard to read.`;
+}
+
+/* ---- video loading ---- */
+function loadFile(file){
+  $('fileError').hidden=true;
+  if(!file)return;
+  const okType = /^video\/(mp4|quicktime)$/.test(file.type) || /\.(mp4|mov)$/i.test(file.name);
+  if(!okType){
+    $('fileError').hidden=false;
+    $('fileError').textContent=`${file.name} isn't an MP4 or MOV.`;
+    return;
+  }
+  if(state.url) URL.revokeObjectURL(state.url);
+  const url=URL.createObjectURL(file);
+  const v=document.createElement('video');
+  v.preload='auto'; v.muted=true; v.playsInline=true;
+  v.onloadedmetadata=()=>{
+    if(!v.videoWidth){
+      $('fileError').hidden=false;
+      $('fileError').textContent=
+        `Couldn't decode ${file.name}. MOV files often use codecs this browser can't open \u2014 try an H.264 MP4.`;
+      return;
+    }
+    if(v.duration>MAX_DURATION_S){
+      $('fileError').hidden=false;
+      $('fileError').textContent=
+        `${Math.round(v.duration)}s is longer than this test tool handles (${MAX_DURATION_S}s). Trim it first.`;
+      return;
+    }
+    state.video=v; state.url=url;
+    state.name=file.name.replace(/\.[^.]+$/,'');
+    state.duration=v.duration; state.srcW=v.videoWidth; state.srcH=v.videoHeight;
+    state.gridShort=Math.max(1,Math.round(Math.min(v.videoWidth,v.videoHeight)*0.25));
+    state.prevGrid=null;
+
+    $('filemeta').hidden=false;
+    $('filemeta').innerHTML=
+      `<b>${file.name}</b><br>${v.videoWidth} &#215; ${v.videoHeight} px &#183; ${v.duration.toFixed(2)}s`;
+    $('emptyState').hidden=true;
+    $('preview').hidden=false;
+    $('scrubRow').hidden=false;
+    $('scale').disabled=false;
+    $('scaleWrap').classList.remove('disabled');
+    $('render').disabled=false;
+    $('exportFrame').disabled=false;
+    syncScale();
+    seekPreview(0);
+  };
+  v.onerror=()=>{
+    $('fileError').hidden=false;
+    $('fileError').textContent=
+      `Couldn't open ${file.name}. If it's a MOV, the codec may not be supported \u2014 try an H.264 MP4.`;
+  };
+  v.src=url;
+}
+
+const drop=$('drop');
+drop.onclick=()=>$('file').click();
+drop.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();$('file').click();}};
+$('file').onchange=e=>loadFile(e.target.files[0]);
+['dragenter','dragover'].forEach(ev=>window.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('over');}));
+['dragleave','drop'].forEach(ev=>window.addEventListener(ev,e=>{e.preventDefault();if(ev==='drop'||e.target===document.body)drop.classList.remove('over');}));
+window.addEventListener('drop',e=>{e.preventDefault();loadFile(e.dataTransfer.files[0]);});
+
+/* ---- grid sizing ---- */
+function srcShort(){return Math.min(state.srcW,state.srcH)||1;}
+function srcLong(){return Math.max(state.srcW,state.srcH)||1;}
+function effectiveGrid(){
+  const gs=state.gridShort;
+  const gl=gridLongFrom(gs,srcShort(),srcLong());
+  const portrait=state.srcH<state.srcW;
+  let g=portrait?{w:gl,h:gs}:{w:gs,h:gl};
+  const short=Math.min(g.w,g.h);
+  state.capped=short>MAX_GRID_SHORT;
+  if(state.capped){
+    const f=MAX_GRID_SHORT/short;
+    g={w:Math.max(1,Math.round(g.w*f)),h:Math.max(1,Math.round(g.h*f))};
+  }
+  return g;
+}
+/* Encoded size: H.264 needs even dimensions. */
+function outputSize(){
+  const g=effectiveGrid();
+  const aspect=g.h/g.w;
+  let w=Math.min(state.srcW,MAX_OUT_LONG_PX);
+  if(state.srcH>state.srcW) w=Math.round(Math.min(state.srcH,MAX_OUT_LONG_PX)/aspect);
+  let h=Math.round(w*aspect);
+  w=Math.max(2,w-(w%2)); h=Math.max(2,h-(h%2));
+  return {w,h};
+}
+function syncScale(){
+  const s=$('scale'), short=srcShort();
+  state.gridShort=Math.max(1,Math.round(short*(+s.value)/100));
+  fillTrack(s);
+  const g=effectiveGrid(), o=outputSize();
+  state.gw=g.w; state.gh=g.h;
+  $('scaleOut').innerHTML=`${s.value}% <em>&#8594;</em> ${g.w} &#215; ${g.h}`;
+  $('capNotice').hidden=!state.capped;
+  if(state.capped)$('capNotice').textContent=`Capped at ${MAX_GRID_SHORT} units. Rendering ${g.w} \u00D7 ${g.h}.`;
+  $('statGrid').innerHTML=`Grid <b>${g.w} &#215; ${g.h}</b>`;
+  $('statOut').innerHTML=`Output <b>${o.w} &#215; ${o.h}</b> @ ${OUTPUT_FPS} fps`;
+  updateExportReadout();
+}
+function frameCount(){return Math.max(1,Math.floor(state.duration*OUTPUT_FPS));}
+function bitrate(){
+  const o=outputSize();
+  return Math.round(Math.min(40e6,Math.max(1e6,o.w*o.h*OUTPUT_FPS*BPP[state.quality])));
+}
+function updateExportReadout(){
+  if(!state.video){$('exportOut').textContent='\u2014';return;}
+  const n=frameCount(), mb=bitrate()*state.duration/8/1e6;
+  $('exportOut').innerHTML=
+    `${n} frames <em>&#183;</em> ${(bitrate()/1e6).toFixed(1)} Mbps <em>&#183;</em> ~${mb.toFixed(1)} MB`;
+}
+
+/* ---- sampling one frame ---- */
+const sampleCanvas=document.createElement('canvas');
+const sampleCtx=sampleCanvas.getContext('2d',{willReadFrequently:true});
+
+function seekTo(time){
+  return new Promise((resolve,reject)=>{
+    const v=state.video;
+    const done=()=>{v.removeEventListener('seeked',done);resolve();};
+    v.addEventListener('seeked',done);
+    try{ v.currentTime=Math.min(time,Math.max(0,state.duration-1e-3)); }
+    catch(e){ v.removeEventListener('seeked',done); reject(e); }
+  });
+}
+/* Sample the current video frame into a tone-mapped t-grid. */
+function sampleCurrentFrame(useSmoothing){
+  const g={w:state.gw,h:state.gh};
+  // sample at a modest multiple of the grid so the box filter has real data
+  const sw=Math.min(state.srcW,g.w*4), sh=Math.min(state.srcH,g.h*4);
+  sampleCanvas.width=sw; sampleCanvas.height=sh;
+  sampleCtx.drawImage(state.video,0,0,sw,sh);
+  const src=decodeSource(sampleCtx.getImageData(0,0,sw,sh));
+  let grid=downsample(src,g.w,g.h,null);
+  if(useSmoothing && state.smooth>0 && state.prevGrid && state.prevGrid.length===grid.length){
+    const a=state.smooth/100, blended=new Float32Array(grid.length);
+    for(let i=0;i<grid.length;i++) blended[i]=grid[i]*(1-a)+state.prevGrid[i]*a;
+    grid=blended;
+  }
+  state.prevGrid=grid;
+  return applyTone(grid,toneLUT(state));
+}
+function params(){
+  return {glyph:state.glyph,squareFlush:state.squareFlush,mode:state.mode,
+          threshold:state.threshold,ink:state.ink,paper:state.paper};
+}
+function renderFrameTo(ctx,t,outW){
+  const pitch=pitchFor(state.glyph);
+  const scale=outW/(state.gw*pitch);
+  return renderTo(ctx,t,state.gw,state.gh,params(),
+    {scale,ink:state.ink,paper:state.paper,hairlineFloor:0});
+}
+
+/* ---- preview ---- */
+let previewBusy=false, previewQueued=null;
+async function seekPreview(time){
+  if(!state.video||state.rendering)return;
+  if(previewBusy){previewQueued=time;return;}
+  previewBusy=true;
+  try{
+    await seekTo(time);
+    state.previewT=time;
+    state.prevGrid=null;                 // preview is a single frame; no history
+    drawPreview();
+  }catch(e){ /* seek rejected; ignore */ }
+  previewBusy=false;
+  if(previewQueued!==null){const q=previewQueued;previewQueued=null;seekPreview(q);}
+}
+function drawPreview(){
+  if(!state.video)return;
+  const o=outputSize();
+  const vp=document.querySelector('.viewport');
+  const fit=Math.min((vp.clientWidth-64)/o.w,(vp.clientHeight-64)/o.h,1);
+  const cv=$('preview');
+  const dpr=Math.min(2,window.devicePixelRatio||1);
+  cv.width=Math.round(o.w*fit*dpr); cv.height=Math.round(o.h*fit*dpr);
+  cv.style.width=(o.w*fit)+'px'; cv.style.height=(o.h*fit)+'px';
+  const ctx=cv.getContext('2d');
+  ctx.setTransform(1,0,0,1,0,0);
+  ctx.clearRect(0,0,cv.width,cv.height);
+  if(!state.paper){ctx.fillStyle='#FFFFFF';ctx.fillRect(0,0,cv.width,cv.height);}
+  const t=sampleCurrentFrame(false);
+  renderFrameTo(ctx,t,cv.width);
+}
+
+/* ---- render to MP4 ---- */
+async function renderVideo(){
+  if(!('VideoEncoder' in window)){
+    stageNotice('This browser has no WebCodecs support, so it cannot encode MP4. Try Chrome or Edge.');
+    return;
+  }
+  const o=outputSize(), n=frameCount(), fps=OUTPUT_FPS;
+
+  const candidates=['avc1.640028','avc1.4D0028','avc1.42E028','avc1.42001f'];
+  let codec=null;
+  for(const c of candidates){
+    try{
+      const s=await VideoEncoder.isConfigSupported({
+        codec:c,width:o.w,height:o.h,bitrate:bitrate(),framerate:fps,avc:{format:'avc'}});
+      if(s.supported){codec=c;break;}
+    }catch(e){}
+  }
+  if(!codec){stageNotice('No H.264 encoder available in this browser.');return;}
+
+  state.rendering=true; state.cancelled=false; state.prevGrid=null;
+  $('render').disabled=true; $('cancel').disabled=false;
+  $('progressBar').hidden=false; $('renderRow').hidden=false;
+  $('stageNotice').hidden=true;
+
+  const cv=document.createElement('canvas');
+  cv.width=o.w; cv.height=o.h;
+  const ctx=cv.getContext('2d');
+
+  let muxer=null, encoded=0, failed=null;
+  const encoder=new VideoEncoder({
+    output:(chunk,meta)=>{
+      if(!muxer){
+        const desc=meta&&meta.decoderConfig&&meta.decoderConfig.description;
+        if(!desc){failed='Encoder gave no avcC description.';return;}
+        muxer=createMp4Muxer({width:o.w,height:o.h,fps,description:desc});
+      }
+      const buf=new Uint8Array(chunk.byteLength);
+      chunk.copyTo(buf);
+      muxer.addChunk(buf,chunk.type==='key',chunk.timestamp);
+      encoded++;
+    },
+    error:e=>{failed=e.message;}
+  });
+  encoder.configure({codec,width:o.w,height:o.h,bitrate:bitrate(),framerate:fps,avc:{format:'avc'}});
+
+  const keyEvery=Math.max(1,Math.round(fps*KEYFRAME_EVERY_S));
+  const started=performance.now();
+  try{
+    for(let i=0;i<n;i++){
+      if(state.cancelled||failed)break;
+      await seekTo(i/fps);
+      const t=sampleCurrentFrame(true);
+      ctx.setTransform(1,0,0,1,0,0);
+      ctx.clearRect(0,0,o.w,o.h);
+      if(!state.paper){ /* transparent requested: MP4 has no alpha, use white */
+        ctx.fillStyle='#FFFFFF'; ctx.fillRect(0,0,o.w,o.h);
+      }
+      renderFrameTo(ctx,t,o.w);
+      const frame=new VideoFrame(cv,{timestamp:Math.round(i*1e6/fps),duration:Math.round(1e6/fps)});
+      encoder.encode(frame,{keyFrame:i%keyEvery===0});
+      frame.close();
+      if(i%2===0||i===n-1){
+        const pct=(i+1)/n*100;
+        $('progressBar').style.setProperty('--pct',pct+'%');
+        const el=(performance.now()-started)/1000;
+        const eta=el/(i+1)*(n-i-1);
+        $('renderOut').innerHTML=
+          `Frame <b>${i+1}</b> / ${n} <em>&#183;</em> ${pct.toFixed(0)}% <em>&#183;</em> ${eta.toFixed(0)}s left`;
+        await new Promise(r=>setTimeout(r,0));   // let the UI paint
+      }
+      if(encoder.encodeQueueSize>8) await new Promise(r=>setTimeout(r,4));
+    }
+    await encoder.flush();
+  }catch(e){ failed=e.message; }
+  finally{ try{encoder.close();}catch(e){} }
+
+  state.rendering=false;
+  $('render').disabled=false;
+  $('progressBar').hidden=true; $('renderRow').hidden=true;
+  $('progressBar').style.setProperty('--pct','0%');
+
+  if(state.cancelled){stageNotice('Render cancelled.');return;}
+  if(failed){stageNotice('Encoding failed: '+failed);return;}
+  if(!muxer||encoded===0){stageNotice('Encoder produced no frames.');return;}
+
+  const bytes=muxer.build();
+  const blob=new Blob([bytes],{type:'video/mp4'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download=`${state.name||'video'}-${state.glyph==='square'?'grid':'node'}-raster.mp4`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),2000);
+  stageNotice(`Done \u2014 ${encoded} frames, ${(bytes.length/1e6).toFixed(1)} MB.`,true);
+  seekPreview(state.previewT);
+}
+function stageNotice(msg,ok){
+  const n=$('stageNotice');
+  n.hidden=false; n.textContent=msg;
+  n.style.background=ok?'var(--color-sunk)':'var(--color-warn-bg)';
+  n.style.color=ok?'var(--color-muted)':'var(--color-warn)';
+}
+
+/* ---- controls ---- */
+function fillTrack(input){
+  const min=+input.min,max=+input.max,v=+input.value;
+  const pct=max===min?0:(v-min)/(max-min)*100;
+  input.parentElement.style.setProperty('--fill',pct+'%');
+}
+document.querySelectorAll('.slider input[type=range]').forEach(i=>{
+  fillTrack(i); i.addEventListener('input',()=>fillTrack(i));
+});
+function segment(id,onPick){
+  const el=$(id);
+  el.onclick=e=>{
+    const b=e.target.closest('button'); if(!b)return;
+    [...el.children].forEach(c=>c.setAttribute('aria-pressed',String(c===b)));
+    onPick(b.dataset.v);
+  };
+}
+segment('glyphMode',v=>{state.glyph=v;$('flushField').hidden=v!=='square';syncScale();drawPreview();});
+segment('mode',v=>{state.mode=v;$('thresholdField').hidden=v!=='bw';drawPreview();});
+segment('quality',v=>{state.quality=v;updateExportReadout();});
+function switchToggle(id,key,after){
+  $(id).onclick=e=>{
+    state[key]=e.currentTarget.getAttribute('aria-pressed')!=='true';
+    e.currentTarget.setAttribute('aria-pressed',String(state[key]));
+    after();
+  };
+}
+switchToggle('squareFlush','squareFlush',drawPreview);
+switchToggle('invert','invert',drawPreview);
+
+$('scale').oninput=()=>{syncScale();drawPreview();};
+$('threshold').oninput=e=>{state.threshold=+e.target.value/100;$('thresholdOut').textContent=e.target.value+'%';drawPreview();};
+$('brightness').oninput=e=>{state.brightness=+e.target.value;$('brightnessOut').textContent=(state.brightness>0?'+':'')+state.brightness;drawPreview();};
+$('contrast').oninput=e=>{state.contrast=+e.target.value;$('contrastOut').textContent=(state.contrast>0?'+':'')+state.contrast;drawPreview();};
+const GMIN=Math.log(0.2),GMAX=Math.log(5);
+$('gamma').oninput=e=>{state.gamma=Math.exp(GMIN+(GMAX-GMIN)*(+e.target.value/1000));$('gammaOut').textContent=state.gamma.toFixed(2);drawPreview();};
+$('smooth').oninput=e=>{state.smooth=+e.target.value;$('smoothOut').textContent=state.smooth+'%';};
+$('scrub').oninput=e=>{
+  const t=+e.target.value/1000*state.duration;
+  $('scrubOut').textContent=t.toFixed(2)+'s';
+  seekPreview(t);
+};
+$('render').onclick=renderVideo;
+$('cancel').onclick=()=>{state.cancelled=true;};
+$('exportFrame').onclick=()=>{
+  const o=outputSize();
+  const cv=document.createElement('canvas');
+  cv.width=o.w; cv.height=o.h;
+  const ctx=cv.getContext('2d');
+  const t=sampleCurrentFrame(false);
+  renderFrameTo(ctx,t,o.w);
+  cv.toBlob(b=>{
+    const url=URL.createObjectURL(b);
+    const a=document.createElement('a');
+    a.href=url; a.download=`${state.name||'frame'}-${state.previewT.toFixed(2)}s.png`;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+  },'image/png');
+};
+window.addEventListener('resize',()=>{if(state.video&&!state.rendering)drawPreview();});
+
+/* ============================================================================
+   licence viewer — OFL 1.1 requires the copyright notice and full licence text
+   to travel with the embedded fonts, so they ship inside this file.
+   ========================================================================= */
+const LICENCES = {"Tool": "Copyright © 2026 Ahnaf Abdur Rahman. All rights reserved.\n\nThis software, its source code, design, and accompanying documentation are the\nexclusive property of Ahnaf Abdur Rahman (the \"Owner\"). No rights are granted to\nany party except as stated below. All rights not expressly granted are reserved.\n\nGRANT TO THE AMERICAN UNIVERSITY OF SHARJAH\n\nThe Owner grants to the American University of Sharjah (\"AUS\"), including its\ndepartments, offices, faculty, staff, and students acting in their institutional\ncapacity, a perpetual, irrevocable, worldwide, royalty-free, non-exclusive\nlicence to use, host, and display this software for any institutional purpose;\nto reproduce and distribute it internally within AUS; to modify it and create\nderivative works from it on these same terms; and to create, use, publish, and\ncommercially exploit any output generated with it, without restriction and\nwithout attribution to the Owner.\n\nThis grant extends to contractors, agencies, and vendors engaged by AUS, solely\nfor work performed on behalf of AUS and only for the duration of that engagement.\n\nThe grant is perpetual and irrevocable. It survives any change in the Owner's\nrelationship with AUS and any transfer of ownership of the software.\n\nLIMITS\n\nAUS may not sublicense, sell, or transfer this software to any party outside AUS\nexcept as permitted above; may not publish or distribute it, or any derivative\nwork of it, to the general public or as an open-source project; and may not\nremove or alter this licence or the copyright notice.\n\nThese limits apply to the software, not to its output. Output carries no\nrestriction.\n\nALL OTHER PARTIES\n\nNo party other than AUS is granted any right to use, copy, modify, distribute, or\ncreate derivative works from this software. Any such use requires prior written\npermission from the Owner.\n\nNO WARRANTY\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS\nFOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT. IN NO EVENT SHALL THE OWNER BE\nLIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY ARISING FROM THE SOFTWARE OR\nITS USE.\n\nThe full licence text is in the LICENSE file of the project repository.","Uncut Sans": "Copyright (c) 2022 Kasper Nordkvist.\n\"Uncut Sans\" is trademark of Kasper Nordkvist.\nhttps://uncut.wtf/sans-serif/uncut-sans.html\n\nThis Font Software is licensed under the SIL Open Font License, Version 1.1.\nThis license is copied below, and is also available with a FAQ at:\nhttp://scripts.sil.org/OFL\n\nEmbedded unmodified in this tool as UncutSans-Variable.woff2, version 1.304.\n\n-----------------------------------------------------------\nSIL OPEN FONT LICENSE Version 1.1 - 26 February 2007\n-----------------------------------------------------------\n\nPREAMBLE\nThe goals of the Open Font License (OFL) are to stimulate worldwide\ndevelopment of collaborative font projects, to support the font creation\nefforts of academic and linguistic communities, and to provide a free and\nopen framework in which fonts may be shared and improved in partnership\nwith others.\n\nThe OFL allows the licensed fonts to be used, studied, modified and\nredistributed freely as long as they are not sold by themselves. The\nfonts, including any derivative works, can be bundled, embedded,\nredistributed and/or sold with any software provided that any reserved\nnames are not used by derivative works. The fonts and derivatives,\nhowever, cannot be released under any other type of license. The\nrequirement for fonts to remain under this license does not apply\nto any document created using the fonts or their derivatives.\n\nDEFINITIONS\n\"Font Software\" refers to the set of files released by the Copyright\nHolder(s) under this license and clearly marked as such. This may\ninclude source files, build scripts and documentation.\n\n\"Reserved Font Name\" refers to any names specified as such after the\ncopyright statement(s).\n\n\"Original Version\" refers to the collection of Font Software components as\ndistributed by the Copyright Holder(s).\n\n\"Modified Version\" refers to any derivative made by adding to, deleting,\nor substituting -- in part or in whole -- any of the components of the\nOriginal Version, by changing formats or by porting the Font Software to a\nnew environment.\n\n\"Author\" refers to any designer, engineer, programmer, technical\nwriter or other person who contributed to the Font Software.\n\nPERMISSION AND CONDITIONS\nPermission is hereby granted, free of charge, to any person obtaining\na copy of the Font Software, to use, study, copy, merge, embed, modify,\nredistribute, and sell modified and unmodified copies of the Font\nSoftware, subject to the following conditions:\n\n1) Neither the Font Software nor any of its individual components,\nin Original or Modified Versions, may be sold by itself.\n\n2) Original or Modified Versions of the Font Software may be bundled,\nredistributed and/or sold with any software, provided that each copy\ncontains the above copyright notice and this license. These can be\nincluded either as stand-alone text files, human-readable headers or\nin the appropriate machine-readable metadata fields within text or\nbinary files as long as those fields can be easily viewed by the user.\n\n3) No Modified Version of the Font Software may use the Reserved Font\nName(s) unless explicit written permission is granted by the corresponding\nCopyright Holder. This restriction only applies to the primary font name as\npresented to the users.\n\n4) The name(s) of the Copyright Holder(s) or the Author(s) of the Font\nSoftware shall not be used to promote, endorse or advertise any\nModified Version, except to acknowledge the contribution(s) of the\nCopyright Holder(s) and the Author(s) or with their explicit written\npermission.\n\n5) The Font Software, modified or unmodified, in part or in whole,\nmust be distributed entirely under this license, and must not be\ndistributed under any other license. The requirement for fonts to\nremain under this license does not apply to any document created\nusing the Font Software.\n\nTERMINATION\nThis license becomes null and void if any of the above conditions are\nnot met.\n\nDISCLAIMER\nTHE FONT SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND,\nEXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTIES OF\nMERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT\nOF COPYRIGHT, PATENT, TRADEMARK, OR OTHER RIGHT. IN NO EVENT SHALL THE\nCOPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,\nINCLUDING ANY GENERAL, SPECIAL, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL\nDAMAGES, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\nFROM, OUT OF THE USE OR INABILITY TO USE THE FONT SOFTWARE OR FROM\nOTHER DEALINGS IN THE FONT SOFTWARE.","Geist Mono": "Copyright (c) 2023 Vercel, in collaboration with basement.studio\n\nThis Font Software is licensed under the SIL Open Font License, Version 1.1.\nThis license is copied below, and is also available with a FAQ at:\nhttp://scripts.sil.org/OFL\n\nEmbedded unmodified in this tool as GeistMono_wght_.woff2, version 1.700.\n\n-----------------------------------------------------------\nSIL OPEN FONT LICENSE Version 1.1 - 26 February 2007\n-----------------------------------------------------------\n\nPREAMBLE\nThe goals of the Open Font License (OFL) are to stimulate worldwide\ndevelopment of collaborative font projects, to support the font creation\nefforts of academic and linguistic communities, and to provide a free and\nopen framework in which fonts may be shared and improved in partnership\nwith others.\n\nThe OFL allows the licensed fonts to be used, studied, modified and\nredistributed freely as long as they are not sold by themselves. The\nfonts, including any derivative works, can be bundled, embedded,\nredistributed and/or sold with any software provided that any reserved\nnames are not used by derivative works. The fonts and derivatives,\nhowever, cannot be released under any other type of license. The\nrequirement for fonts to remain under this license does not apply\nto any document created using the fonts or their derivatives.\n\nDEFINITIONS\n\"Font Software\" refers to the set of files released by the Copyright\nHolder(s) under this license and clearly marked as such. This may\ninclude source files, build scripts and documentation.\n\n\"Reserved Font Name\" refers to any names specified as such after the\ncopyright statement(s).\n\n\"Original Version\" refers to the collection of Font Software components as\ndistributed by the Copyright Holder(s).\n\n\"Modified Version\" refers to any derivative made by adding to, deleting,\nor substituting -- in part or in whole -- any of the components of the\nOriginal Version, by changing formats or by porting the Font Software to a\nnew environment.\n\n\"Author\" refers to any designer, engineer, programmer, technical\nwriter or other person who contributed to the Font Software.\n\nPERMISSION AND CONDITIONS\nPermission is hereby granted, free of charge, to any person obtaining\na copy of the Font Software, to use, study, copy, merge, embed, modify,\nredistribute, and sell modified and unmodified copies of the Font\nSoftware, subject to the following conditions:\n\n1) Neither the Font Software nor any of its individual components,\nin Original or Modified Versions, may be sold by itself.\n\n2) Original or Modified Versions of the Font Software may be bundled,\nredistributed and/or sold with any software, provided that each copy\ncontains the above copyright notice and this license. These can be\nincluded either as stand-alone text files, human-readable headers or\nin the appropriate machine-readable metadata fields within text or\nbinary files as long as those fields can be easily viewed by the user.\n\n3) No Modified Version of the Font Software may use the Reserved Font\nName(s) unless explicit written permission is granted by the corresponding\nCopyright Holder. This restriction only applies to the primary font name as\npresented to the users.\n\n4) The name(s) of the Copyright Holder(s) or the Author(s) of the Font\nSoftware shall not be used to promote, endorse or advertise any\nModified Version, except to acknowledge the contribution(s) of the\nCopyright Holder(s) and the Author(s) or with their explicit written\npermission.\n\n5) The Font Software, modified or unmodified, in part or in whole,\nmust be distributed entirely under this license, and must not be\ndistributed under any other license. The requirement for fonts to\nremain under this license does not apply to any document created\nusing the Font Software.\n\nTERMINATION\nThis license becomes null and void if any of the above conditions are\nnot met.\n\nDISCLAIMER\nTHE FONT SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND,\nEXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTIES OF\nMERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT\nOF COPYRIGHT, PATENT, TRADEMARK, OR OTHER RIGHT. IN NO EVENT SHALL THE\nCOPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,\nINCLUDING ANY GENERAL, SPECIAL, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL\nDAMAGES, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\nFROM, OUT OF THE USE OR INABILITY TO USE THE FONT SOFTWARE OR FROM\nOTHER DEALINGS IN THE FONT SOFTWARE.","Third-party": "Grid Raster embeds two typefaces. They are not covered by this project's own\nlicence and remain the property of their respective copyright holders, licensed\nunder the SIL Open Font License, Version 1.1.\n\n  Uncut Sans   Copyright (c) 2022 Kasper Nordkvist\n  Geist Mono   Copyright (c) 2023 Vercel, in collaboration with basement.studio\n\nBoth are embedded unmodified. Neither declares a Reserved Font Name. Neither is\nsold separately, and no other licence is applied to them. Their full licence\ntexts are in the tabs above.\n\nNo other third-party code, libraries, icons, or assets are used. All remaining\ncode is original.\n\nUnder the OFL, the requirement for fonts to remain under that licence does not\napply to any document created using them — rasters you export from this tool\ncarry no font licensing obligation."};
+
+(function initLicences(){
+  const tabs = $('licTabs'), body = $('licBody'), overlay = $('licOverlay');
+  const names = Object.keys(LICENCES);
+  let active = names[0], lastFocus = null;
+
+  names.forEach(n => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.textContent = n; b.setAttribute('role','tab');
+    b.onclick = () => show(n);
+    tabs.appendChild(b);
+  });
+  function show(n) {
+    active = n;
+    [...tabs.children].forEach(c => c.setAttribute('aria-selected', String(c.textContent === n)));
+    body.textContent = LICENCES[n];
+    body.scrollTop = 0;
+  }
+  function open() {
+    // Fall back to the trigger: a programmatic click leaves focus on <body>.
+    const a = document.activeElement;
+    lastFocus = (a && a !== document.body) ? a : $('licOpen');
+    overlay.hidden = false;
+    show(active);
+    $('licClose').focus();
+  }
+  function close() {
+    overlay.hidden = true;
+    if (lastFocus) lastFocus.focus();
+  }
+  $('licOpen').onclick = open;
+  $('licClose').onclick = close;
+  overlay.onclick = e => { if (e.target === overlay) close(); };
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && !overlay.hidden) close();
+  });
+  show(active);
+})();
+
+
+/* ============================================================================
+   Opened from disk? Chrome blocks @font-face over file:// (opaque origin), so
+   the brand fonts would silently fall back. Point the user at the portable build.
+   ========================================================================= */
+if (location.protocol === 'file:') {
+  const n = document.createElement('div');
+  n.className = 'notice';
+  n.style.cssText = 'position:fixed;left:var(--space-4);bottom:var(--space-3);z-index:20;max-width:min(44ch,calc(100vw - 190px))';
+  n.textContent = 'Opened from disk \u2014 the brand fonts may not load in this browser. ' +
+                  'Use portable.html for offline work, or open the published link.';
+  document.body.appendChild(n);
+}
+
+/* --- init --- */
+inkSelect=buildSelect('inkSelect','ink','inkLabel');
+bgSelect=buildSelect('bgSelect','bg','bgLabel');
+syncColour();
+$('fpsOut').textContent=OUTPUT_FPS+' fps';
+if(!('VideoEncoder' in window)){
+  stageNotice('This browser has no WebCodecs support. Rendering needs Chrome or Edge; preview still works.');
+}
+</script>
+</body>
+</html>
