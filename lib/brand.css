@@ -168,7 +168,7 @@ body{
   background:var(--color-text);
   transition:transform var(--dur) var(--ease-snap),background var(--dur) var(--ease-snap);
 }
-.switch[aria-pressed=true]{background:var(--color-text);border-color:var(--color-text)}
+.switch[aria-pressed=true]{background:var(--anchor-blue);border-color:var(--color-text)}
 .switch[aria-pressed=true]::after{transform:translateX(16px);background:var(--white)}
 .switch:focus-visible{outline:2px solid var(--color-accent);outline-offset:2px}
 

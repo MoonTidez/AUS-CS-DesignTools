@@ -35,8 +35,8 @@
 .tally{height:6px;display:flex;border:1px solid var(--color-line-strong);margin:var(--space-2) 0 var(--space-3)}
 .tally span{height:100%}
 
-/* ---- preview: checker shows through when the background is transparent ---- */
-#preview.transparent{
+/* ---- preview background fills the whole work area; never exported ---- */
+.viewport.transparent{
   background-color:var(--color-surface);
   background-image:linear-gradient(45deg,var(--color-line) 25%,transparent 25%,transparent 75%,var(--color-line) 75%),
                    linear-gradient(45deg,var(--color-line) 25%,transparent 25%,transparent 75%,var(--color-line) 75%);
@@ -51,7 +51,7 @@
   <span class="arrow">&#8594;</span>
   <span>Pie Generator</span>
   <span class="spacer"></span>
-  <span class="dim" id="buildStamp">Build 1</span>
+  <span class="dim" id="buildStamp">Build 2</span>
 </header>
 
 <div class="app">
@@ -132,7 +132,7 @@
     <section class="group">
       <h2>Background</h2>
       <div class="field">
-        <div class="field-head"><label id="bgLabel">Colour</label></div>
+        <div class="field-head"><label id="bgLabel">Colour <em class="readout">preview only</em></label></div>
         <div class="select" id="bgSelect"></div>
       </div>
       <div class="field toggle">
@@ -331,7 +331,6 @@ function buildSVG(p, fills) {
     '<?xml version="1.0" encoding="UTF-8"?>',
     `<svg xmlns="http://www.w3.org/2000/svg" width="${w}mm" height="${h}mm" viewBox="0 0 ${w} ${h}">`
   ];
-  if (p.paper) out.push(`<rect x="0" y="0" width="${w}" height="${h}" fill="${p.paper}"/>`);
   for (const [hex, ds] of groups) {
     out.push(`<g fill="${hex}" fill-rule="evenodd" stroke="${hex}" stroke-width="${SEAM_MM}" stroke-linejoin="round">`);
     ds.forEach(d => out.push(`<path d="${d}"/>`));
@@ -345,17 +344,17 @@ function buildSVG(p, fills) {
    render — mm to px, used by both the preview and the PNG export
    ========================================================================= */
 function renderTo(ctx, p, fills, opts) {
-  const { scale, paper, guides } = opts;
+  // backdrop is the preview background; it only picks a legible guide colour.
+  const { scale, backdrop, guides } = opts;
   const b = artBounds(p);
   const cx = -b.x, cy = -b.y;
   ctx.save();
   ctx.scale(scale, scale);
-  if (paper) { ctx.fillStyle = paper; ctx.fillRect(0, 0, b.w, b.h); }
   ctx.lineJoin = 'round';
   const pieces = pieceGeometry(p);
   if (guides) {
-    const dark = !paper || CS.relLum(paper) < 0.18;
-    ctx.strokeStyle = paper && dark ? 'rgba(255,255,255,.22)' : 'rgba(30,32,33,.22)';
+    const dark = backdrop && CS.relLum(backdrop) < 0.18;
+    ctx.strokeStyle = dark ? 'rgba(255,255,255,.22)' : 'rgba(30,32,33,.22)';
     ctx.lineWidth = 1 / scale;
     pieces.forEach((pc, i) => { if (!fills[i]) ctx.stroke(new Path2D(piecePath(pc, cx, cy))); });
   }
@@ -389,7 +388,7 @@ const total = () => state.rings * state.slices;
 function params() {
   return {
     span: state.span, rotation: state.rotation, donut: state.donut, hole: state.hole,
-    rings: state.rings, slices: state.slices, frame: state.frame, paper: state.paper
+    rings: state.rings, slices: state.slices, frame: state.frame
   };
 }
 
@@ -528,11 +527,12 @@ function draw() {
   cv.height = Math.round(b.h * scale * dpr);
   cv.style.width = (b.w * scale) + 'px';
   cv.style.height = (b.h * scale) + 'px';
-  cv.classList.toggle('transparent', !state.paper);
+  vp.style.backgroundColor = state.paper || '';
+  vp.classList.toggle('transparent', !state.paper);
   const ctx = cv.getContext('2d');
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.clearRect(0, 0, cv.width, cv.height);
-  renderTo(ctx, p, fills(), { scale: scale * dpr, paper: state.paper, guides: state.guides });
+  renderTo(ctx, p, fills(), { scale: scale * dpr, backdrop: state.paper, guides: state.guides });
 
   const T = total(), filled = sumCounts(state.rows);
   $('piecesOut').innerHTML = `${state.rings} rings <em>&#215;</em> ${state.slices} slices <em>=</em> ${T} pieces`;
@@ -616,7 +616,7 @@ $('exportPng').onclick = () => {
   const plan = CS.pngPlan(b.w, b.h, state.pngIntent);
   const cv = document.createElement('canvas');
   cv.width = plan.w; cv.height = plan.h;
-  renderTo(cv.getContext('2d'), p, fills(), { scale: plan.scale, paper: state.paper, guides: false });
+  renderTo(cv.getContext('2d'), p, fills(), { scale: plan.scale, guides: false });
   CS.downloadCanvas(cv, slug() + '.png');
 };
 

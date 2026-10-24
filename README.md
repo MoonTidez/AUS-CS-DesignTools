@@ -64,8 +64,9 @@ SVG or PNG.
    other piece stays empty. A colour can't take more pieces than are free, and if
    you reduce the rings or slices, the counts scale down to fit. Filled pieces are
    scattered at random; **Shuffle** deals a new layout.
-5. **Background** — any palette colour or transparent. "Outline empty pieces"
-   is a preview aid and never appears in exports.
+5. **Background** — any palette colour or transparent, filling the whole work
+   area. It is a preview aid only, like "Outline empty pieces": exports always
+   have a transparent background.
 6. **Export** — "Trim to arc" crops the artwork to the drawn arc; "Full circle"
    keeps the whole square. SVG is at true size (200 mm across a full circle).
 
