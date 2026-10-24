@@ -4,108 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Grid Raster — Career Services</title>
+<link rel="stylesheet" href="lib/brand.css">
 <style>
-/* ============================================================
-   FONTS — embedded unmodified under the SIL Open Font License 1.1.
-   Uncut Sans: Copyright (c) 2022 Kasper Nordkvist.
-     "Uncut Sans" is trademark of Kasper Nordkvist.
-     https://uncut.wtf/sans-serif/uncut-sans.html
-   Geist Mono: Copyright (c) 2023 Vercel, in collaboration with
-     basement.studio
-   Font files live in fonts/ and must travel with this page.
-   Full licence texts: see the Licences link in the tool, the
-   licenses/ folder, or http://scripts.sil.org/OFL
-   ============================================================ */
-@font-face{font-family:"Uncut Sans";src:url("fonts/UncutSans-Variable.woff2") format("woff2");font-weight:300 700;font-style:normal;font-display:swap}
-@font-face{font-family:"Geist Mono";src:url("fonts/GeistMono-Variable.woff2") format("woff2");font-weight:100 900;font-style:normal;font-display:swap}
-
-/* ============================================================
-   TOKENS — every brand value lives here and nowhere else.
-   ============================================================ */
-:root{
-  /* Core brand palette */
-  --anchor-blue:#307FE2;
-  --link-pink:#EB6FBD;
-  --open-mint:#47D7AC;
-  --signal-yellow:#E3E935;
-  --bright-orange:#EE5340;
-  --framework-gray:#B2B4B2;
-  --light-concrete:#D9D9D6;
-  --core-black:#1E2021;
-  --white:#FFFFFF;
-
-  /* UI roles */
-  --color-bg:var(--white);
-  --color-surface:var(--white);
-  --color-sunk:#F4F4F2;
-  --color-text:var(--core-black);
-  --color-muted:#6E7273;
-  --color-line:var(--light-concrete);
-  --color-line-strong:var(--core-black);
-  --color-accent:var(--anchor-blue);
-  --color-warn:#8A3A2C;
-  --color-warn-bg:#FDEDEA;
-
-  --font-ui:"Uncut Sans",system-ui,sans-serif;
-  --font-mono:"Geist Mono",ui-monospace,monospace;
-
-  --radius-control:0;
-  --track:1px;
-  --thumb:12px;
-
-  --space-1:4px;
-  --space-2:8px;
-  --space-3:12px;
-  --space-4:20px;
-  --space-5:32px;
-  --space-6:48px;
-
-  --ease-snap:cubic-bezier(.2,0,0,1);
-  --dur:120ms;
-}
-
-*{box-sizing:border-box}
-html,body{height:100%}
-body{
-  margin:0;
-  font-family:var(--font-ui);
-  font-size:13px;
-  line-height:1.45;
-  color:var(--color-text);
-  background:var(--color-bg);
-  -webkit-font-smoothing:antialiased;
-}
-[hidden]{display:none !important}
-
-/* ---- masthead: mirrors the deck's running header ---- */
-.masthead{
-  display:flex;align-items:center;gap:var(--space-3);
-  height:34px;padding:0 var(--space-4);
-  border-bottom:1px solid var(--color-line-strong);
-  font-family:var(--font-mono);font-size:11px;font-weight:500;
-  letter-spacing:.09em;text-transform:uppercase;
-  white-space:nowrap;overflow:hidden;
-}
-.masthead .arrow{color:var(--color-muted)}
-.masthead .spacer{flex:1;min-width:var(--space-2)}
-.masthead .dim{color:var(--color-muted)}
-
-.app{display:grid;grid-template-columns:316px 1fr;height:calc(100vh - 34px);height:calc(100dvh - 34px)}
-
-/* ---- panel ---- */
-.panel{
-  background:var(--color-surface);
-  border-right:1px solid var(--color-line-strong);
-  overflow-y:auto;
-}
-.group{padding:var(--space-4);border-bottom:1px solid var(--color-line)}
-.group:last-child{border-bottom:0}
-.group>h2{
-  margin:0 0 var(--space-3);
-  font-family:var(--font-mono);font-size:10px;font-weight:500;
-  letter-spacing:.11em;text-transform:uppercase;color:var(--color-muted);
-}
-
+/* Grid Raster only — shared styles live in lib/brand.css. */
 /* ---- drop zone ---- */
 .drop{
   position:relative;
@@ -124,226 +25,6 @@ body{
 .drop span{position:relative;background:var(--color-surface);padding:0 var(--space-2)}
 .filemeta{margin-top:var(--space-2);font-family:var(--font-mono);font-size:11px;color:var(--color-muted)}
 .filemeta b{color:var(--color-text);font-weight:500}
-
-/* ---- fields ---- */
-.field{margin-bottom:var(--space-4)}
-.field:last-child{margin-bottom:0}
-.field-head{display:flex;justify-content:space-between;align-items:baseline;gap:var(--space-2);margin-bottom:var(--space-2)}
-.field-head label{font-size:12px}
-.readout{
-  font-family:var(--font-mono);font-size:11px;color:var(--color-text);
-  white-space:nowrap;font-variant-numeric:tabular-nums;
-}
-.readout em{font-style:normal;color:var(--color-muted)}
-
-/* ---- slider: 1px rule, square thumb, filled left half ---- */
-.slider{position:relative;height:18px;display:flex;align-items:center}
-.slider::before{
-  content:"";position:absolute;left:0;right:0;height:var(--track);
-  background:var(--color-line);
-}
-.slider::after{
-  content:"";position:absolute;left:0;height:var(--track);
-  width:var(--fill,0%);background:var(--color-text);
-}
-.slider input[type=range]{
-  -webkit-appearance:none;appearance:none;position:relative;
-  width:100%;height:18px;margin:0;background:transparent;cursor:pointer;
-}
-.slider input[type=range]::-webkit-slider-runnable-track{height:var(--track);background:transparent}
-.slider input[type=range]::-moz-range-track{height:var(--track);background:transparent}
-.slider input[type=range]::-webkit-slider-thumb{
-  -webkit-appearance:none;width:var(--thumb);height:var(--thumb);
-  margin-top:calc((var(--thumb) / -2) + (var(--track) / 2));
-  background:var(--color-text);border:0;border-radius:0;
-}
-.slider input[type=range]::-moz-range-thumb{
-  width:var(--thumb);height:var(--thumb);background:var(--color-text);
-  border:0;border-radius:0;
-}
-.slider input[type=range]:focus-visible::-webkit-slider-thumb{outline:2px solid var(--color-accent);outline-offset:2px}
-.slider.disabled{opacity:.35;pointer-events:none}
-
-/* ---- segmented ---- */
-.seg{display:flex;border:1px solid var(--color-line-strong)}
-.seg button{
-  flex:1;border:0;background:var(--color-surface);color:var(--color-muted);
-  font:inherit;font-size:12px;padding:6px var(--space-2);cursor:pointer;
-  border-radius:0;
-}
-.seg button+button{border-left:1px solid var(--color-line-strong)}
-.seg button[aria-pressed=true]{background:var(--color-text);color:var(--white)}
-.seg.mini{width:72px}
-.seg.mini button{font-family:var(--font-mono);font-size:10px;padding:2px var(--space-2)}
-
-/* ---- toggle: rectangle, square knob, snap ease ---- */
-.toggle{display:flex;align-items:center;justify-content:space-between;gap:var(--space-3)}
-.toggle label{font-size:12px}
-.switch{
-  width:34px;height:18px;flex:none;padding:0;position:relative;cursor:pointer;
-  border:1px solid var(--color-line-strong);background:var(--color-surface);border-radius:0;
-}
-.switch::after{
-  content:"";position:absolute;top:1px;left:1px;width:14px;height:14px;
-  background:var(--color-text);
-  transition:transform var(--dur) var(--ease-snap),background var(--dur) var(--ease-snap);
-}
-.switch[aria-pressed=true]{background:var(--color-text);border-color:var(--color-text)}
-.switch[aria-pressed=true]::after{transform:translateX(16px);background:var(--white)}
-.switch:focus-visible{outline:2px solid var(--color-accent);outline-offset:2px}
-
-/* ---- colour select ---- */
-.select{position:relative}
-.select-trigger{
-  width:100%;display:flex;align-items:center;gap:var(--space-2);
-  padding:6px var(--space-2);cursor:pointer;border-radius:0;
-  border:1px solid var(--color-line-strong);background:var(--color-surface);
-  font:inherit;font-size:12px;color:var(--color-text);text-align:left;
-}
-.select-trigger:hover{border-color:var(--color-text)}
-.select-trigger:focus-visible{outline:2px solid var(--color-accent);outline-offset:2px}
-.select-value{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.select-caret{
-  flex:none;font-family:var(--font-mono);font-size:9px;color:var(--color-muted);
-  transition:transform var(--dur) var(--ease-snap);
-}
-.select-trigger[aria-expanded=true] .select-caret{transform:rotate(180deg)}
-.select-list{
-  border:1px solid var(--color-line-strong);border-top:0;
-  max-height:242px;overflow-y:auto;overscroll-behavior:contain;
-  background:var(--color-surface);
-}
-.select-group{
-  font-family:var(--font-mono);font-size:9px;letter-spacing:.11em;text-transform:uppercase;
-  color:var(--color-muted);padding:var(--space-2) var(--space-2) var(--space-1);
-  border-bottom:1px solid var(--color-line);background:var(--color-sunk);
-  position:sticky;top:0;z-index:1;
-}
-.select-option{
-  width:100%;display:flex;align-items:center;gap:var(--space-2);
-  padding:5px var(--space-2);cursor:pointer;border:0;border-radius:0;
-  background:var(--color-surface);font:inherit;font-size:12px;
-  color:var(--color-text);text-align:left;
-}
-.select-option:hover,.select-option.active{background:var(--color-sunk)}
-.select-option[aria-selected=true]{background:var(--color-text);color:var(--white)}
-.select-option[aria-selected=true] .sw{box-shadow:0 0 0 1px var(--white)}
-.sw{
-  flex:none;width:14px;height:14px;border:1px solid var(--color-line);
-  background-color:var(--color-surface);
-}
-.sw.transparent{
-  background-image:linear-gradient(45deg,var(--color-line) 25%,transparent 25%,transparent 75%,var(--color-line) 75%),
-                   linear-gradient(45deg,var(--color-line) 25%,transparent 25%,transparent 75%,var(--color-line) 75%);
-  background-size:8px 8px;background-position:0 0,4px 4px;
-}
-
-/* ---- stage ---- */
-.stage{display:flex;flex-direction:column;min-width:0}
-.stage-bar{
-  display:flex;align-items:center;gap:var(--space-4);
-  padding:var(--space-3) var(--space-4);
-  border-bottom:1px solid var(--color-line);
-}
-.stage-bar .spacer{flex:1}
-.stat{font-family:var(--font-mono);font-size:11px;color:var(--color-muted);font-variant-numeric:tabular-nums;white-space:nowrap}
-.stat b{color:var(--color-text);font-weight:500}
-
-button.action{
-  font-family:var(--font-mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;
-  padding:7px var(--space-3);border-radius:0;
-  border:1px solid var(--color-text);background:var(--color-text);color:var(--white);cursor:pointer;
-}
-button.action.ghost{background:var(--color-surface);color:var(--color-text)}
-button.action:disabled{opacity:.3;cursor:default}
-button.action:focus-visible{outline:2px solid var(--color-accent);outline-offset:2px}
-
-.viewport{flex:1;min-height:0;display:grid;place-items:center;padding:var(--space-5);overflow:auto}
-#preview{max-width:100%;max-height:100%;outline:1px solid var(--color-line)}
-.empty{color:var(--color-muted);text-align:center;max-width:34ch;font-size:12px}
-
-.notice{
-  padding:var(--space-2) var(--space-3);
-  background:var(--color-warn-bg);color:var(--color-warn);font-size:11px;
-  font-family:var(--font-mono);line-height:1.5;
-}
-.group .notice{margin-top:var(--space-2)}
-.stage .notice{margin:var(--space-3) var(--space-4) 0}
-
-/* ---- licence viewer ---- */
-.lic-link{
-  position:fixed;right:var(--space-4);bottom:var(--space-3);z-index:20;
-  font-family:var(--font-mono);font-size:10px;letter-spacing:.09em;text-transform:uppercase;
-  color:var(--color-muted);background:var(--color-surface);
-  border:1px solid var(--color-line);padding:5px var(--space-2);cursor:pointer;border-radius:0;
-}
-.lic-link:hover{color:var(--color-text);border-color:var(--color-line-strong)}
-.lic-link:focus-visible{outline:2px solid var(--color-accent);outline-offset:2px}
-.lic-overlay{
-  position:fixed;inset:0;z-index:30;background:rgba(30,32,33,.55);
-  display:flex;align-items:center;justify-content:center;padding:var(--space-4);
-}
-.lic-panel{
-  background:var(--color-surface);border:1px solid var(--color-line-strong);
-  width:min(760px,100%);
-  max-height:86vh;max-height:86dvh;   /* dvh keeps it clear of mobile browser chrome */
-  display:flex;flex-direction:column;min-height:0;
-}
-/* Head and tabs must not shrink: without flex:none a long licence body
-   squeezes them and the text rides over the tab bar. */
-.lic-head{
-  flex:none;
-  display:flex;align-items:center;gap:var(--space-3);
-  padding:var(--space-3) var(--space-4);border-bottom:1px solid var(--color-line-strong);
-  font-family:var(--font-mono);font-size:11px;letter-spacing:.09em;text-transform:uppercase;
-}
-.lic-head .spacer{flex:1}
-.lic-close{
-  flex:none;
-  border:1px solid var(--color-line-strong);background:var(--color-surface);color:var(--color-text);
-  font-family:var(--font-mono);font-size:11px;line-height:1;padding:5px 9px;cursor:pointer;border-radius:0;
-}
-.lic-close:hover{background:var(--color-text);color:var(--white)}
-.lic-tabs{
-  flex:none;
-  display:flex;border-bottom:1px solid var(--color-line);
-  overflow-x:auto;-webkit-overflow-scrolling:touch;
-}
-.lic-tabs button{
-  flex:none;
-  border:0;border-right:1px solid var(--color-line);background:var(--color-surface);
-  color:var(--color-muted);font:inherit;font-size:12px;padding:8px var(--space-3);
-  cursor:pointer;white-space:nowrap;border-radius:0;
-}
-.lic-tabs button[aria-selected=true]{background:var(--color-text);color:var(--white)}
-.lic-body{
-  flex:1 1 auto;min-height:0;
-  padding:var(--space-4);overflow-y:auto;overscroll-behavior:contain;
-  font-family:var(--font-mono);font-size:11px;line-height:1.65;
-  white-space:pre-wrap;overflow-wrap:anywhere;color:var(--color-text);
-}
-
-@media (max-width:860px){
-  .app{grid-template-columns:1fr;height:auto}
-  .panel{border-right:0;border-bottom:1px solid var(--color-line-strong);order:2;overflow-y:visible}
-  .stage{order:1;height:60vh;min-height:340px}
-  .stage-bar{flex-wrap:wrap;row-gap:var(--space-2)}
-  .stage-bar .spacer{flex-basis:100%;height:0}
-  .lic-overlay{padding:var(--space-2)}
-  .lic-panel{max-height:92vh;max-height:92dvh}
-}
-@media (max-width:560px){
-  .masthead{gap:var(--space-2);padding:0 var(--space-3);font-size:10px}
-  .masthead #buildStamp{display:none}
-  .group{padding:var(--space-3)}
-  .viewport{padding:var(--space-3)}
-  .lic-body{padding:var(--space-3);font-size:10px}
-  .lic-head{padding:var(--space-2) var(--space-3)}
-  .lic-link{right:var(--space-3);bottom:var(--space-2)}
-}
-/* Long grid readouts shouldn't force the stage bar wider than the screen. */
-.stat{overflow:hidden;text-overflow:ellipsis;min-width:0}
-@media (prefers-reduced-motion:reduce){*{transition:none !important}}
 </style>
 </head>
 <body>
@@ -353,7 +34,7 @@ button.action:focus-visible{outline:2px solid var(--color-accent);outline-offset
   <span class="arrow">&#8594;</span>
   <span>Grid Raster</span>
   <span class="spacer"></span>
-  <span class="dim" id="buildStamp">Build 10</span>
+  <span class="dim" id="buildStamp">Build 11</span>
 </header>
 
 <div class="app">
@@ -490,25 +171,14 @@ button.action:focus-visible{outline:2px solid var(--color-accent);outline-offset
   </main>
 </div>
 
-<button class="lic-link" id="licOpen">Licences</button>
-
-<div class="lic-overlay" id="licOverlay" hidden role="dialog" aria-modal="true" aria-labelledby="licTitle">
-  <div class="lic-panel">
-    <div class="lic-head">
-      <span id="licTitle">Licences</span>
-      <span class="spacer"></span>
-      <button class="lic-close" id="licClose" aria-label="Close">&#10005;</button>
-    </div>
-    <div class="lic-tabs" id="licTabs" role="tablist"></div>
-    <div class="lic-body" id="licBody" tabindex="0"></div>
-  </div>
-</div>
-
+<script src="lib/licences.js"></script>
+<script src="lib/brand.js"></script>
 <script>
 /* ============================================================================
    Grid Raster — Department of Career Services
-   Single file, fully client-side. Logic below is grouped into the sections a
-   module split would follow: geometry / sampler / render / svg / png / ui.
+   Fully client-side. Palette, controls, export and licences come from
+   lib/brand.js; logic below is grouped as geometry / sampler / render / svg /
+   png / ui.
    ========================================================================= */
 
 /* ---- constants (tune here, not in the UI) ------------------------------- */
@@ -525,41 +195,12 @@ const MAX_GRID_SHORT = 400;
 const QUANT_MM      = 0.005;
 const SQ_CELL_MM    = 9;
 const SQ_GAP_MAX_MM = 8;
-const PNG_MAX_PX    = 8192;
-const PNG_DPI       = { screen: 150, print: 300 };
-const PNG_SOFT_PX   = 1.5;         // thinnest feature below this reads soft
-const CONTRAST_MIN  = 0.18;
 
 const pitchFor = glyph => glyph === 'square' ? SQ_CELL_MM : PITCH;
 const squareMax = flush => flush ? SQ_CELL_MM : SQ_GAP_MAX_MM;
 
-/* ---- palettes ----------------------------------------------------------- */
-const CORE = [
-  { name:'Anchor Blue',     hex:'#307FE2' },
-  { name:'Link Pink',       hex:'#EB6FBD' },
-  { name:'Open Mint',       hex:'#47D7AC' },
-  { name:'Signal Yellow',   hex:'#E3E935' },
-  { name:'Bright Orange',   hex:'#EE5340' },
-  { name:'Framework Gray',  hex:'#B2B4B2' },
-  { name:'Light Concrete',  hex:'#D9D9D6' },
-  { name:'Core Black',      hex:'#1E2021' },
-  { name:'White',           hex:'#FFFFFF' }
-];
-const AUS = [
-  { name:'AUS Corporate Red', hex:'#983222' },
-  { name:'CAAD Accent',       hex:'#9DABE2' },
-  { name:'CAS Accent',        hex:'#988642' },
-  { name:'CEN Accent',        hex:'#DF7A00' },
-  { name:'SBA Accent',        hex:'#8BA69C' },
-  { name:'AUS Gray',          hex:'#4D4F53' },
-  { name:'AUS Black',         hex:'#000000' }
-];
-const NO_FILL = [{ name:'Transparent', hex:null }];
-
-/* Groups in deck order: Career Services first, then AUS. */
-const groupsFor = kind => kind === 'bg'
-  ? [['Career Services', CORE], ['AUS', AUS], ['No fill', NO_FILL]]
-  : [['Career Services', CORE], ['AUS', AUS]];
+/* ---- shared library: palette, colour, controls, export (lib/brand.js) ---- */
+const { $, SRGB_TO_LIN, linToSrgb, paletteContrast, CONTRAST_MIN } = CS;
 
 /* ============================================================================
    geometry — pure
@@ -594,13 +235,6 @@ function thinnestFeatureMM(params) {
 /* ============================================================================
    sampler — pure
    ========================================================================= */
-const SRGB_TO_LIN = new Float32Array(256);
-for (let i = 0; i < 256; i++) {
-  const c = i / 255;
-  SRGB_TO_LIN[i] = c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
-}
-const linToSrgb = v => v <= 0.0031308 ? v * 12.92 : 1.055 * Math.pow(v, 1 / 2.4) - 0.055;
-
 /* Rec. 709 luminance on linearised sRGB. Alpha composited over white. */
 function decodeSource(imageData) {
   const { width: w, height: h, data } = imageData;
@@ -783,41 +417,12 @@ function buildSVG(t, gw, gh, params) {
    ========================================================================= */
 function pngPlan(gw, gh, params, intent) {
   const pitch = pitchFor(params.glyph);
-  const wmm = gw * pitch, hmm = gh * pitch;
-  const feature = thinnestFeatureMM(params);
-  let scale = intent === 'max'
-    ? PNG_MAX_PX / Math.max(wmm, hmm)
-    : PNG_DPI[intent] / 25.4;
-  let w = Math.round(wmm * scale), h = Math.round(hmm * scale);
-  let clamped = false;
-  if (Math.max(w, h) > PNG_MAX_PX) {
-    const f = PNG_MAX_PX / Math.max(w, h);
-    w = Math.max(1, Math.round(w * f)); h = Math.max(1, Math.round(h * f));
-    scale = w / wmm; clamped = true;
-  }
-  w = Math.max(1, w); h = Math.max(1, h);
-  const featurePx = feature * scale;
-  return { w, h, scale, wmm, hmm, dpi: scale * 25.4, featurePx, clamped, soft: featurePx < PNG_SOFT_PX };
-}
-
-/* ============================================================================
-   colour helpers
-   ========================================================================= */
-function relLum(hex) {
-  const n = parseInt(hex.slice(1), 16);
-  const f = i => SRGB_TO_LIN[(n >> i) & 255];
-  return 0.2126 * f(16) + 0.7152 * f(8) + 0.0722 * f(0);
-}
-/* Value distance in linear light — enough to tell "will this vanish?". */
-function paletteContrast(inkHex, paperHex) {
-  if (!paperHex) return 1;                     // transparent: always legible
-  return Math.abs(relLum(inkHex) - relLum(paperHex));
+  return CS.pngPlan(gw * pitch, gh * pitch, intent, thinnestFeatureMM(params));
 }
 
 /* ============================================================================
    UI
    ========================================================================= */
-const $ = id => document.getElementById(id);
 const state = {
   src:null, name:'', gridShort:0, scaleMode:'pct',
   glyph:'plus', squareFlush:false,
@@ -830,110 +435,11 @@ const state = {
 };
 
 /* --- colour selects --- */
-function swatchEl(hex) {
-  const sw = document.createElement('span');
-  sw.className = 'sw' + (hex === null ? ' transparent' : '');
-  if (hex !== null) sw.style.background = hex;
-  return sw;
-}
-
 function buildSelect(rootId, kind, labelId) {
-  const root = $(rootId);
-  root.innerHTML = '';
-
-  const trigger = document.createElement('button');
-  trigger.type = 'button';
-  trigger.className = 'select-trigger';
-  trigger.setAttribute('aria-haspopup', 'listbox');
-  trigger.setAttribute('aria-expanded', 'false');
-  trigger.setAttribute('aria-labelledby', labelId);
-  const tSw = swatchEl('#000');
-  const tVal = document.createElement('span');
-  tVal.className = 'select-value';
-  const caret = document.createElement('span');
-  caret.className = 'select-caret';
-  caret.textContent = '\u25BC';
-  trigger.append(tSw, tVal, caret);
-
-  const list = document.createElement('div');
-  list.className = 'select-list';
-  list.setAttribute('role', 'listbox');
-  list.hidden = true;
-
-  const options = [];
-  groupsFor(kind).forEach(([groupName, colours]) => {
-    const g = document.createElement('div');
-    g.className = 'select-group';
-    g.textContent = groupName;
-    list.appendChild(g);
-    colours.forEach(c => {
-      const o = document.createElement('button');
-      o.type = 'button';
-      o.className = 'select-option';
-      o.setAttribute('role', 'option');
-      o.dataset.hex = c.hex === null ? '' : c.hex;
-      o.dataset.name = c.name;
-      const label = document.createElement('span');
-      label.textContent = c.name;
-      o.append(swatchEl(c.hex), label);
-      o.onclick = () => { pick(kind, c.name, c.hex); close(); trigger.focus(); };
-      list.appendChild(o);
-      options.push(o);
-    });
+  return CS.colourSelect($(rootId), {
+    groups: CS.paletteGroups(kind), labelId,
+    onPick: (name, hex) => pick(kind, name, hex)
   });
-
-  root.append(trigger, list);
-
-  let cursor = 0;
-  function open() {
-    list.hidden = false;
-    trigger.setAttribute('aria-expanded', 'true');
-    cursor = Math.max(0, options.findIndex(o => o.getAttribute('aria-selected') === 'true'));
-    highlight();
-    options[cursor].scrollIntoView({ block: 'nearest' });
-  }
-  function close() {
-    list.hidden = true;
-    trigger.setAttribute('aria-expanded', 'false');
-    options.forEach(o => o.classList.remove('active'));
-  }
-  function highlight() {
-    options.forEach((o, i) => o.classList.toggle('active', i === cursor));
-  }
-  function move(step) {
-    cursor = (cursor + step + options.length) % options.length;
-    highlight();
-    options[cursor].scrollIntoView({ block: 'nearest' });
-  }
-
-  trigger.onclick = () => list.hidden ? open() : close();
-  trigger.onkeydown = e => {
-    if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {
-      if (list.hidden) { e.preventDefault(); open(); }
-    }
-  };
-  root.addEventListener('keydown', e => {
-    if (list.hidden) return;
-    if (e.key === 'Escape') { e.preventDefault(); close(); trigger.focus(); }
-    else if (e.key === 'ArrowDown') { e.preventDefault(); move(1); }
-    else if (e.key === 'ArrowUp') { e.preventDefault(); move(-1); }
-    else if (e.key === 'Home') { e.preventDefault(); cursor = 0; highlight(); options[0].scrollIntoView({ block:'nearest' }); }
-    else if (e.key === 'End') { e.preventDefault(); cursor = options.length - 1; highlight(); options[cursor].scrollIntoView({ block:'nearest' }); }
-    else if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); options[cursor].click(); }
-  });
-  document.addEventListener('click', e => { if (!root.contains(e.target)) close(); });
-
-  return {
-    sync(hex, name) {
-      tVal.textContent = name;
-      tSw.className = 'sw' + (hex === null ? ' transparent' : '');
-      tSw.style.background = hex === null ? '' : hex;
-      options.forEach(o => {
-        const h = o.dataset.hex || null;
-        o.setAttribute('aria-selected', String(h === hex));
-      });
-    }
-  };
 }
 
 let inkSelect, bgSelect;
@@ -1119,25 +625,11 @@ function updatePngReadout() {
 }
 
 /* --- slider fill --- */
-function fillTrack(input) {
-  const min = +input.min, max = +input.max, v = +input.value;
-  const pct = max === min ? 0 : (v - min) / (max - min) * 100;
-  input.parentElement.style.setProperty('--fill', pct + '%');
-}
-document.querySelectorAll('.slider input[type=range]').forEach(i => {
-  fillTrack(i);
-  i.addEventListener('input', () => fillTrack(i));
-});
+const fillTrack = CS.fillTrack;
+CS.initSliders();
 
 /* --- controls --- */
-function segment(id, onPick) {
-  const el = $(id);
-  el.onclick = e => {
-    const b = e.target.closest('button'); if (!b) return;
-    [...el.children].forEach(c => c.setAttribute('aria-pressed', String(c === b)));
-    onPick(b.dataset.v);
-  };
-}
+const segment = CS.segment;
 segment('glyphMode', v => {
   state.glyph = v;
   $('flushField').hidden = v !== 'square';
@@ -1151,13 +643,7 @@ segment('mode', v => {
 segment('scaleMode', v => { state.scaleMode = v; syncScaleSlider(); resampleDebounced(); });
 segment('pngIntent', v => { state.pngIntent = v; updatePngReadout(); });
 
-function switchToggle(id, key, after) {
-  $(id).onclick = e => {
-    state[key] = e.currentTarget.getAttribute('aria-pressed') !== 'true';
-    e.currentTarget.setAttribute('aria-pressed', String(state[key]));
-    after();
-  };
-}
+const switchToggle = (id, key, after) => CS.toggle(id, on => { state[key] = on; after(); });
 switchToggle('squareFlush', 'squareFlush', draw);
 switchToggle('invert', 'invert', retone);
 
@@ -1227,13 +713,7 @@ window.addEventListener('paste', e => {
 window.addEventListener('resize', () => { clearTimeout(timer); timer = setTimeout(draw, 100); });
 
 /* --- export --- */
-function download(blob, filename) {
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = filename;
-  document.body.appendChild(a); a.click(); a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-}
+const download = CS.download;
 function slug() {
   return `${state.name || 'raster'}-${state.glyph === 'square' ? 'grid' : 'node'}-raster`;
 }
@@ -1254,63 +734,8 @@ $('exportPng').onclick = () => {
 };
 
 
-/* ============================================================================
-   licence viewer — OFL 1.1 requires the copyright notice and full licence text
-   to travel with the embedded fonts, so they ship inside this file.
-   ========================================================================= */
-const LICENCES = {"Tool": "Copyright © 2026 Ahnaf Abdur Rahman. All rights reserved.\n\nThis software, its source code, design, and accompanying documentation are the\nexclusive property of Ahnaf Abdur Rahman (the \"Owner\"). No rights are granted to\nany party except as stated below. All rights not expressly granted are reserved.\n\nGRANT TO THE AMERICAN UNIVERSITY OF SHARJAH\n\nThe Owner grants to the American University of Sharjah (\"AUS\"), including its\ndepartments, offices, faculty, staff, and students acting in their institutional\ncapacity, a perpetual, irrevocable, worldwide, royalty-free, non-exclusive\nlicence to use, host, and display this software for any institutional purpose;\nto reproduce and distribute it internally within AUS; to modify it and create\nderivative works from it on these same terms; and to create, use, publish, and\ncommercially exploit any output generated with it, without restriction and\nwithout attribution to the Owner.\n\nThis grant extends to contractors, agencies, and vendors engaged by AUS, solely\nfor work performed on behalf of AUS and only for the duration of that engagement.\n\nThe grant is perpetual and irrevocable. It survives any change in the Owner's\nrelationship with AUS and any transfer of ownership of the software.\n\nLIMITS\n\nAUS may not sublicense, sell, or transfer this software to any party outside AUS\nexcept as permitted above; may not publish or distribute it, or any derivative\nwork of it, to the general public or as an open-source project; and may not\nremove or alter this licence or the copyright notice.\n\nThese limits apply to the software, not to its output. Output carries no\nrestriction.\n\nALL OTHER PARTIES\n\nNo party other than AUS is granted any right to use, copy, modify, distribute, or\ncreate derivative works from this software. Any such use requires prior written\npermission from the Owner.\n\nNO WARRANTY\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS\nFOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT. IN NO EVENT SHALL THE OWNER BE\nLIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY ARISING FROM THE SOFTWARE OR\nITS USE.\n\nThe full licence text is in the LICENSE file of the project repository.","Uncut Sans": "Copyright (c) 2022 Kasper Nordkvist.\n\"Uncut Sans\" is trademark of Kasper Nordkvist.\nhttps://uncut.wtf/sans-serif/uncut-sans.html\n\nThis Font Software is licensed under the SIL Open Font License, Version 1.1.\nThis license is copied below, and is also available with a FAQ at:\nhttp://scripts.sil.org/OFL\n\nEmbedded unmodified in this tool as UncutSans-Variable.woff2, version 1.304.\n\n-----------------------------------------------------------\nSIL OPEN FONT LICENSE Version 1.1 - 26 February 2007\n-----------------------------------------------------------\n\nPREAMBLE\nThe goals of the Open Font License (OFL) are to stimulate worldwide\ndevelopment of collaborative font projects, to support the font creation\nefforts of academic and linguistic communities, and to provide a free and\nopen framework in which fonts may be shared and improved in partnership\nwith others.\n\nThe OFL allows the licensed fonts to be used, studied, modified and\nredistributed freely as long as they are not sold by themselves. The\nfonts, including any derivative works, can be bundled, embedded,\nredistributed and/or sold with any software provided that any reserved\nnames are not used by derivative works. The fonts and derivatives,\nhowever, cannot be released under any other type of license. The\nrequirement for fonts to remain under this license does not apply\nto any document created using the fonts or their derivatives.\n\nDEFINITIONS\n\"Font Software\" refers to the set of files released by the Copyright\nHolder(s) under this license and clearly marked as such. This may\ninclude source files, build scripts and documentation.\n\n\"Reserved Font Name\" refers to any names specified as such after the\ncopyright statement(s).\n\n\"Original Version\" refers to the collection of Font Software components as\ndistributed by the Copyright Holder(s).\n\n\"Modified Version\" refers to any derivative made by adding to, deleting,\nor substituting -- in part or in whole -- any of the components of the\nOriginal Version, by changing formats or by porting the Font Software to a\nnew environment.\n\n\"Author\" refers to any designer, engineer, programmer, technical\nwriter or other person who contributed to the Font Software.\n\nPERMISSION AND CONDITIONS\nPermission is hereby granted, free of charge, to any person obtaining\na copy of the Font Software, to use, study, copy, merge, embed, modify,\nredistribute, and sell modified and unmodified copies of the Font\nSoftware, subject to the following conditions:\n\n1) Neither the Font Software nor any of its individual components,\nin Original or Modified Versions, may be sold by itself.\n\n2) Original or Modified Versions of the Font Software may be bundled,\nredistributed and/or sold with any software, provided that each copy\ncontains the above copyright notice and this license. These can be\nincluded either as stand-alone text files, human-readable headers or\nin the appropriate machine-readable metadata fields within text or\nbinary files as long as those fields can be easily viewed by the user.\n\n3) No Modified Version of the Font Software may use the Reserved Font\nName(s) unless explicit written permission is granted by the corresponding\nCopyright Holder. This restriction only applies to the primary font name as\npresented to the users.\n\n4) The name(s) of the Copyright Holder(s) or the Author(s) of the Font\nSoftware shall not be used to promote, endorse or advertise any\nModified Version, except to acknowledge the contribution(s) of the\nCopyright Holder(s) and the Author(s) or with their explicit written\npermission.\n\n5) The Font Software, modified or unmodified, in part or in whole,\nmust be distributed entirely under this license, and must not be\ndistributed under any other license. The requirement for fonts to\nremain under this license does not apply to any document created\nusing the Font Software.\n\nTERMINATION\nThis license becomes null and void if any of the above conditions are\nnot met.\n\nDISCLAIMER\nTHE FONT SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND,\nEXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTIES OF\nMERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT\nOF COPYRIGHT, PATENT, TRADEMARK, OR OTHER RIGHT. IN NO EVENT SHALL THE\nCOPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,\nINCLUDING ANY GENERAL, SPECIAL, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL\nDAMAGES, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\nFROM, OUT OF THE USE OR INABILITY TO USE THE FONT SOFTWARE OR FROM\nOTHER DEALINGS IN THE FONT SOFTWARE.","Geist Mono": "Copyright (c) 2023 Vercel, in collaboration with basement.studio\n\nThis Font Software is licensed under the SIL Open Font License, Version 1.1.\nThis license is copied below, and is also available with a FAQ at:\nhttp://scripts.sil.org/OFL\n\nEmbedded unmodified in this tool as GeistMono_wght_.woff2, version 1.700.\n\n-----------------------------------------------------------\nSIL OPEN FONT LICENSE Version 1.1 - 26 February 2007\n-----------------------------------------------------------\n\nPREAMBLE\nThe goals of the Open Font License (OFL) are to stimulate worldwide\ndevelopment of collaborative font projects, to support the font creation\nefforts of academic and linguistic communities, and to provide a free and\nopen framework in which fonts may be shared and improved in partnership\nwith others.\n\nThe OFL allows the licensed fonts to be used, studied, modified and\nredistributed freely as long as they are not sold by themselves. The\nfonts, including any derivative works, can be bundled, embedded,\nredistributed and/or sold with any software provided that any reserved\nnames are not used by derivative works. The fonts and derivatives,\nhowever, cannot be released under any other type of license. The\nrequirement for fonts to remain under this license does not apply\nto any document created using the fonts or their derivatives.\n\nDEFINITIONS\n\"Font Software\" refers to the set of files released by the Copyright\nHolder(s) under this license and clearly marked as such. This may\ninclude source files, build scripts and documentation.\n\n\"Reserved Font Name\" refers to any names specified as such after the\ncopyright statement(s).\n\n\"Original Version\" refers to the collection of Font Software components as\ndistributed by the Copyright Holder(s).\n\n\"Modified Version\" refers to any derivative made by adding to, deleting,\nor substituting -- in part or in whole -- any of the components of the\nOriginal Version, by changing formats or by porting the Font Software to a\nnew environment.\n\n\"Author\" refers to any designer, engineer, programmer, technical\nwriter or other person who contributed to the Font Software.\n\nPERMISSION AND CONDITIONS\nPermission is hereby granted, free of charge, to any person obtaining\na copy of the Font Software, to use, study, copy, merge, embed, modify,\nredistribute, and sell modified and unmodified copies of the Font\nSoftware, subject to the following conditions:\n\n1) Neither the Font Software nor any of its individual components,\nin Original or Modified Versions, may be sold by itself.\n\n2) Original or Modified Versions of the Font Software may be bundled,\nredistributed and/or sold with any software, provided that each copy\ncontains the above copyright notice and this license. These can be\nincluded either as stand-alone text files, human-readable headers or\nin the appropriate machine-readable metadata fields within text or\nbinary files as long as those fields can be easily viewed by the user.\n\n3) No Modified Version of the Font Software may use the Reserved Font\nName(s) unless explicit written permission is granted by the corresponding\nCopyright Holder. This restriction only applies to the primary font name as\npresented to the users.\n\n4) The name(s) of the Copyright Holder(s) or the Author(s) of the Font\nSoftware shall not be used to promote, endorse or advertise any\nModified Version, except to acknowledge the contribution(s) of the\nCopyright Holder(s) and the Author(s) or with their explicit written\npermission.\n\n5) The Font Software, modified or unmodified, in part or in whole,\nmust be distributed entirely under this license, and must not be\ndistributed under any other license. The requirement for fonts to\nremain under this license does not apply to any document created\nusing the Font Software.\n\nTERMINATION\nThis license becomes null and void if any of the above conditions are\nnot met.\n\nDISCLAIMER\nTHE FONT SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND,\nEXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTIES OF\nMERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT\nOF COPYRIGHT, PATENT, TRADEMARK, OR OTHER RIGHT. IN NO EVENT SHALL THE\nCOPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,\nINCLUDING ANY GENERAL, SPECIAL, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL\nDAMAGES, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\nFROM, OUT OF THE USE OR INABILITY TO USE THE FONT SOFTWARE OR FROM\nOTHER DEALINGS IN THE FONT SOFTWARE.","Third-party": "Grid Raster embeds two typefaces. They are not covered by this project's own\nlicence and remain the property of their respective copyright holders, licensed\nunder the SIL Open Font License, Version 1.1.\n\n  Uncut Sans   Copyright (c) 2022 Kasper Nordkvist\n  Geist Mono   Copyright (c) 2023 Vercel, in collaboration with basement.studio\n\nBoth are embedded unmodified. Neither declares a Reserved Font Name. Neither is\nsold separately, and no other licence is applied to them. Their full licence\ntexts are in the tabs above.\n\nNo other third-party code, libraries, icons, or assets are used. All remaining\ncode is original.\n\nUnder the OFL, the requirement for fonts to remain under that licence does not\napply to any document created using them — rasters you export from this tool\ncarry no font licensing obligation."};
-
-(function initLicences(){
-  const tabs = $('licTabs'), body = $('licBody'), overlay = $('licOverlay');
-  const names = Object.keys(LICENCES);
-  let active = names[0], lastFocus = null;
-
-  names.forEach(n => {
-    const b = document.createElement('button');
-    b.type = 'button'; b.textContent = n; b.setAttribute('role','tab');
-    b.onclick = () => show(n);
-    tabs.appendChild(b);
-  });
-  function show(n) {
-    active = n;
-    [...tabs.children].forEach(c => c.setAttribute('aria-selected', String(c.textContent === n)));
-    body.textContent = LICENCES[n];
-    body.scrollTop = 0;
-  }
-  function open() {
-    // Fall back to the trigger: a programmatic click leaves focus on <body>.
-    const a = document.activeElement;
-    lastFocus = (a && a !== document.body) ? a : $('licOpen');
-    overlay.hidden = false;
-    show(active);
-    $('licClose').focus();
-  }
-  function close() {
-    overlay.hidden = true;
-    if (lastFocus) lastFocus.focus();
-  }
-  $('licOpen').onclick = open;
-  $('licClose').onclick = close;
-  overlay.onclick = e => { if (e.target === overlay) close(); };
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape' && !overlay.hidden) close();
-  });
-  show(active);
-})();
-
-
-/* ============================================================================
-   Opened from disk? Chrome blocks @font-face over file:// (opaque origin), so
-   the brand fonts would silently fall back. Point the user at the portable build.
-   ========================================================================= */
-if (location.protocol === 'file:') {
-  const n = document.createElement('div');
-  n.className = 'notice';
-  n.style.cssText = 'position:fixed;left:var(--space-4);bottom:var(--space-3);z-index:20;max-width:min(44ch,calc(100vw - 190px))';
-  n.textContent = 'Opened from disk \u2014 the brand fonts may not load in this browser. ' +
-                  'Use portable.html for offline work, or open the published link.';
-  document.body.appendChild(n);
-}
+CS.initLicences('Grid Raster');
+CS.fileProtocolNotice('Use portable.html for offline work, or open the published link.');
 
 /* --- init --- */
 inkSelect = buildSelect('inkSelect', 'ink', 'inkLabel');

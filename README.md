@@ -48,6 +48,29 @@ lives or dies. Reach for it before brightness or contrast.
 
 ---
 
+## Pie Generator
+
+`pie-generator.html` builds segmented radial diagrams — rings of pie slices,
+some filled with brand colours and the rest left empty — and exports them as
+SVG or PNG.
+
+### Using it
+
+1. **Arc** — set how far round the circle the diagram goes (1–360°, with 90/180/270/360
+   presets) and rotate where it starts. 0° is twelve o'clock; slices run clockwise.
+2. **Centre** — turn on the donut hole and set its size as a share of the radius.
+3. **Divisions** — choose the number of rings and slices. Pieces = rings × slices.
+4. **Colours** — add brand colours and set how many pieces each one fills. Every
+   other piece stays empty. A colour can't take more pieces than are free, and if
+   you reduce the rings or slices, the counts scale down to fit. Filled pieces are
+   scattered at random; **Shuffle** deals a new layout.
+5. **Background** — any palette colour or transparent. "Outline empty pieces"
+   is a preview aid and never appears in exports.
+6. **Export** — "Trim to arc" crops the artwork to the drawn arc; "Full circle"
+   keeps the whole square. SVG is at true size (200 mm across a full circle).
+
+---
+
 ## Maintaining this
 
 There are two builds of the same tool:
@@ -61,12 +84,26 @@ There are two builds of the same tool:
 file itself refuses to run if it is ever served over the web. This keeps one
 canonical link for everyone.
 
-If you change the tool, change both. They are the same file apart from the two
-`@font-face` rules at the top and a short guard script.
+If you change the tool, change both. Since Build 11, `index.html` takes its shared
+code from `lib/` (below) while `portable.html` keeps everything inline, so a change
+to anything in `lib/` must be copied into `portable.html` by hand.
+
+### Shared library — `lib/`
+
+Code used by more than one tool lives here, so it is written once:
+
+| File | Holds |
+|---|---|
+| `lib/brand.css` | fonts, `:root` tokens, masthead and panel layout, slider, toggle, segmented control, colour select, buttons, notices, licence viewer, responsive rules |
+| `lib/brand.js` | the Career Services and AUS palettes, luminance and contrast check, control wiring, the colour-select listbox, SVG/PNG download and PNG sizing, the Licences panel |
+| `lib/licences.js` | the tool licence and both font licences, shown in every tool's Licences panel |
+
+`index.html` and `pie-generator.html` use it. `video.html` and `event-form.html`
+still carry their own copies and can move over when next edited.
 
 **Brand values** — colours, spacing, fonts — live in the `:root` block at the top of
-the `<style>` section. Nothing below it hard-codes a colour. Rebranding means editing
-that one block.
+`lib/brand.css`, and the palettes at the top of `lib/brand.js`. Rebranding means
+editing those two places.
 
 **Raster behaviour** — cell sizes, stroke widths, and the thresholds that decide when
 a glyph fades out — lives in the constants block at the top of the `<script>` section.
@@ -78,16 +115,17 @@ you when it applies the second one.
 
 ### Updating the published tool
 
-Upload a new `index.html` over the old one. GitHub Pages picks it up within a minute.
+Upload a new `index.html` over the old one, plus the `lib/` folder if it changed.
+GitHub Pages picks it up within a minute.
 Remember to upload the matching `portable.html` too.
 The header carries a build number so you can confirm which version you are looking at
 before reporting a problem.
 
 ### Adding another tool later
 
-Move `index.html` into a folder named for the tool, and add a new root `index.html`
-listing both. Note that this changes the URL of the existing tool, so send the new
-link to anyone still using it.
+Add one HTML file at the repository root, link `lib/brand.css`, `lib/licences.js`
+and `lib/brand.js`, and list it in this README. Existing links don't change — the
+Pie Generator, for example, is served at `…/AUS-CS-DesignTools/pie-generator.html`.
 
 ---
 

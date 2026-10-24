@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pie Generator — Career Services</title>
+<link rel="stylesheet" href="lib/brand.css">
+<style>
+/* Pie Generator only — shared styles live in lib/brand.css. */
+
+/* ---- colour rows ---- */
+.crow{border:1px solid var(--color-line);padding:var(--space-3);margin-bottom:var(--space-2)}
+.crow-head{display:flex;gap:var(--space-2);align-items:flex-start}
+.crow-head .select{flex:1;min-width:0}
+.icon-btn{
+  flex:none;width:31px;height:31px;padding:0;cursor:pointer;border-radius:0;
+  border:1px solid var(--color-line-strong);background:var(--color-surface);color:var(--color-text);
+  font-family:var(--font-mono);font-size:11px;line-height:1;
+}
+.icon-btn:hover{background:var(--color-text);color:var(--white)}
+.icon-btn:focus-visible{outline:2px solid var(--color-accent);outline-offset:2px}
+.count{display:flex;align-items:center;gap:var(--space-3);margin-top:var(--space-3)}
+.count .slider{flex:1;min-width:0}
+.num{
+  flex:none;width:58px;padding:4px 6px;border-radius:0;
+  border:1px solid var(--color-line-strong);background:var(--color-surface);color:var(--color-text);
+  font-family:var(--font-mono);font-size:11px;font-variant-numeric:tabular-nums;text-align:right;
+}
+.num:focus-visible{outline:2px solid var(--color-accent);outline-offset:2px}
+.crow .readout{margin-top:var(--space-1);color:var(--color-muted)}
+.row-actions{display:flex;gap:var(--space-2);margin-top:var(--space-3)}
+.row-actions .action{flex:1}
+
+/* ---- tally: filled vs empty ---- */
+.tally{height:6px;display:flex;border:1px solid var(--color-line-strong);margin:var(--space-2) 0 var(--space-3)}
+.tally span{height:100%}
+
+/* ---- preview: checker shows through when the background is transparent ---- */
+#preview.transparent{
+  background-color:var(--color-surface);
+  background-image:linear-gradient(45deg,var(--color-line) 25%,transparent 25%,transparent 75%,var(--color-line) 75%),
+                   linear-gradient(45deg,var(--color-line) 25%,transparent 25%,transparent 75%,var(--color-line) 75%);
+  background-size:16px 16px;background-position:0 0,8px 8px;
+}
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <span>Career Services</span>
+  <span class="arrow">&#8594;</span>
+  <span>Pie Generator</span>
+  <span class="spacer"></span>
+  <span class="dim" id="buildStamp">Build 1</span>
+</header>
+
+<div class="app">
+  <aside class="panel">
+
+    <section class="group">
+      <h2>Arc</h2>
+      <div class="field">
+        <div class="field-head">
+          <label for="span">Degrees</label>
+          <span class="readout" id="spanOut">360&#176;</span>
+        </div>
+        <div class="slider"><input type="range" id="span" min="1" max="360" step="1" value="360"></div>
+      </div>
+      <div class="field">
+        <div class="seg" id="spanPreset">
+          <button data-v="90" aria-pressed="false">90&#176;</button>
+          <button data-v="180" aria-pressed="false">180&#176;</button>
+          <button data-v="270" aria-pressed="false">270&#176;</button>
+          <button data-v="360" aria-pressed="true">360&#176;</button>
+        </div>
+      </div>
+      <div class="field">
+        <div class="field-head">
+          <label for="rotation">Rotation</label>
+          <span class="readout" id="rotationOut">0&#176;</span>
+        </div>
+        <div class="slider"><input type="range" id="rotation" min="0" max="359" step="1" value="0"></div>
+      </div>
+    </section>
+
+    <section class="group">
+      <h2>Centre</h2>
+      <div class="field toggle">
+        <label for="donut">Donut hole</label>
+        <button class="switch" id="donut" aria-pressed="true" aria-label="Donut hole"></button>
+      </div>
+      <div class="field" id="holeField">
+        <div class="field-head">
+          <label for="hole">Hole size</label>
+          <span class="readout" id="holeOut">25% <em>of radius</em></span>
+        </div>
+        <div class="slider"><input type="range" id="hole" min="5" max="90" step="1" value="25"></div>
+      </div>
+    </section>
+
+    <section class="group">
+      <h2>Divisions</h2>
+      <div class="field">
+        <div class="field-head">
+          <label for="rings">Rings</label>
+          <span class="readout" id="ringsOut">3</span>
+        </div>
+        <div class="slider"><input type="range" id="rings" min="1" max="12" step="1" value="3"></div>
+      </div>
+      <div class="field">
+        <div class="field-head">
+          <label for="slices">Slices</label>
+          <span class="readout" id="slicesOut">48</span>
+        </div>
+        <div class="slider"><input type="range" id="slices" min="1" max="120" step="1" value="48"></div>
+      </div>
+      <div class="readout" id="piecesOut">&#8212;</div>
+    </section>
+
+    <section class="group">
+      <h2>Colours</h2>
+      <div class="readout" id="tallyOut">&#8212;</div>
+      <div class="tally" id="tally" aria-hidden="true"></div>
+      <div id="rows"></div>
+      <div class="notice" id="fitNotice" hidden></div>
+      <div class="row-actions">
+        <button class="action ghost" id="addColour" type="button">+ Add colour</button>
+        <button class="action ghost" id="shuffle" type="button">Shuffle</button>
+      </div>
+    </section>
+
+    <section class="group">
+      <h2>Background</h2>
+      <div class="field">
+        <div class="field-head"><label id="bgLabel">Colour</label></div>
+        <div class="select" id="bgSelect"></div>
+      </div>
+      <div class="field toggle">
+        <label for="guides">Outline empty pieces <em class="readout">preview only</em></label>
+        <button class="switch" id="guides" aria-pressed="true" aria-label="Outline empty pieces"></button>
+      </div>
+      <div class="notice" id="contrastNotice" hidden></div>
+    </section>
+
+    <section class="group">
+      <h2>Export</h2>
+      <div class="field">
+        <div class="field-head"><label>Frame</label></div>
+        <div class="seg" id="frame">
+          <button data-v="trim" aria-pressed="true">Trim to arc</button>
+          <button data-v="full" aria-pressed="false">Full circle</button>
+        </div>
+      </div>
+      <div class="field">
+        <div class="field-head"><label>PNG resolution</label></div>
+        <div class="seg" id="pngIntent">
+          <button data-v="screen" aria-pressed="false">Screen</button>
+          <button data-v="print" aria-pressed="true">Print</button>
+          <button data-v="max" aria-pressed="false">Max</button>
+        </div>
+        <div class="readout" id="pngOut" style="margin-top:var(--space-2)">&#8212;</div>
+      </div>
+    </section>
+
+  </aside>
+
+  <main class="stage">
+    <div class="stage-bar">
+      <span class="stat" id="statPieces">&#8212;</span>
+      <span class="stat" id="statFilled"></span>
+      <span class="stat" id="statSize"></span>
+      <span class="spacer"></span>
+      <button class="action ghost" id="exportPng">PNG</button>
+      <button class="action" id="exportSvg">SVG</button>
+    </div>
+    <div class="viewport">
+      <canvas id="preview"></canvas>
+    </div>
+  </main>
+</div>
+
+<script src="lib/licences.js"></script>
+<script src="lib/brand.js"></script>
+<script>
+/* ============================================================================
+   Pie Generator — Department of Career Services
+   Fully client-side. Palette, controls, export and licences come from
+   lib/brand.js; logic below is grouped as geometry / assignment / svg /
+   render / ui.
+   ========================================================================= */
+const { $ } = CS;
+
+/* ---- constants (tune here, not in the UI) ------------------------------- */
+const DIAMETER_MM = 200;           // artwork size of a full circle
+const SEAM_MM     = 0.06;          // same-colour stroke that closes anti-alias seams
+const FULL_EPS    = 1e-6;
+const MAX_COLOURS = CS.ALL_COLOURS.length;
+
+/* ============================================================================
+   geometry — pure. Angles in degrees, 0 at twelve o'clock, clockwise.
+   ========================================================================= */
+const rad = d => d * Math.PI / 180;
+const polar = (cx, cy, r, a) => [cx + r * Math.sin(rad(a)), cy - r * Math.cos(rad(a))];
+const f3 = n => (Math.abs(n) < 5e-4 ? 0 : n).toFixed(3);
+
+/* Pieces in ring-major order: index = ring * slices + slice. Ring 0 is innermost. */
+function pieceGeometry(p) {
+  const R = DIAMETER_MM / 2;
+  const inner = p.donut ? R * p.hole : 0;
+  const step = p.span / p.slices;
+  const out = [];
+  for (let r = 0; r < p.rings; r++) {
+    const r0 = inner + (R - inner) * r / p.rings;
+    const r1 = inner + (R - inner) * (r + 1) / p.rings;
+    for (let s = 0; s < p.slices; s++) {
+      const a0 = p.rotation + step * s;
+      out.push({ ring: r, slice: s, r0, r1, a0, a1: a0 + step });
+    }
+  }
+  return out;
+}
+
+/* Bounding box in mm, centre at (0,0). Trim covers just the drawn arc. */
+function artBounds(p) {
+  const R = DIAMETER_MM / 2, pad = SEAM_MM;
+  if (p.frame === 'full' || p.span >= 360) {
+    return { x: -R - pad, y: -R - pad, w: 2 * (R + pad), h: 2 * (R + pad) };
+  }
+  const inner = p.donut ? R * p.hole : 0;
+  const a0 = p.rotation, a1 = p.rotation + p.span;
+  const angles = [a0, a1];
+  for (let k = Math.ceil(a0 / 90) * 90; k < a1; k += 90) angles.push(k);
+  const pts = [];
+  for (const a of angles) {
+    pts.push(polar(0, 0, R, a));
+    if (inner > 0) pts.push(polar(0, 0, inner, a));
+  }
+  if (inner === 0) pts.push([0, 0]);
+  const xs = pts.map(q => q[0]), ys = pts.map(q => q[1]);
+  const x0 = Math.min(...xs) - pad, y0 = Math.min(...ys) - pad;
+  return { x: x0, y: y0, w: Math.max(...xs) + pad - x0, h: Math.max(...ys) + pad - y0 };
+}
+
+/* SVG path data for one piece, centre at (cx,cy). Also fed to Path2D. */
+function piecePath(pc, cx, cy) {
+  const { r0, r1, a0, a1 } = pc;
+  const sweep = a1 - a0;
+  if (sweep >= 360 - FULL_EPS) {
+    // Full ring: two half arcs per circle; the hole relies on evenodd.
+    const circle = r => `M${f3(cx)} ${f3(cy - r)}A${f3(r)} ${f3(r)} 0 1 1 ${f3(cx)} ${f3(cy + r)}` +
+                        `A${f3(r)} ${f3(r)} 0 1 1 ${f3(cx)} ${f3(cy - r)}Z`;
+    return circle(r1) + (r0 > 0 ? circle(r0) : '');
+  }
+  const large = sweep > 180 ? 1 : 0;
+  const [ox0, oy0] = polar(cx, cy, r1, a0), [ox1, oy1] = polar(cx, cy, r1, a1);
+  let d = `M${f3(ox0)} ${f3(oy0)}A${f3(r1)} ${f3(r1)} 0 ${large} 1 ${f3(ox1)} ${f3(oy1)}`;
+  if (r0 > 0) {
+    const [ix1, iy1] = polar(cx, cy, r0, a1), [ix0, iy0] = polar(cx, cy, r0, a0);
+    d += `L${f3(ix1)} ${f3(iy1)}A${f3(r0)} ${f3(r0)} 0 ${large} 0 ${f3(ix0)} ${f3(iy0)}Z`;
+  } else {
+    d += `L${f3(cx)} ${f3(cy)}Z`;
+  }
+  return d;
+}
+
+/* ============================================================================
+   assignment — pure. Seeded shuffle, so tweaking a count moves one piece per
+   colour rather than re-scattering everything.
+   ========================================================================= */
+function mulberry32(seed) {
+  let a = seed >>> 0;
+  return () => {
+    a = (a + 0x6D2B79F5) >>> 0;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+function permutation(n, seed) {
+  const rnd = mulberry32(seed), idx = Array.from({ length: n }, (_, i) => i);
+  for (let i = n - 1; i > 0; i--) {
+    const j = Math.floor(rnd() * (i + 1));
+    [idx[i], idx[j]] = [idx[j], idx[i]];
+  }
+  return idx;
+}
+const sumCounts = rows => rows.reduce((s, r) => s + r.count, 0);
+
+/* Proof against overflow: scales every colour down in proportion, so the mix
+   survives a smaller piece total. Largest remainders get the spare pieces. */
+function fitCounts(rows, total) {
+  const sum = sumCounts(rows);
+  if (sum <= total) return [];
+  const exact = rows.map(r => r.count * total / sum);
+  const next = exact.map(Math.floor);
+  let spare = total - next.reduce((a, b) => a + b, 0);
+  exact.map((v, i) => [v - next[i], i]).sort((a, b) => b[0] - a[0])
+    .forEach(([, i]) => { if (spare > 0) { next[i]++; spare--; } });
+  const trimmed = [];
+  rows.forEach((r, i) => { if (next[i] < r.count) { trimmed.push(r.name); r.count = next[i]; } });
+  return trimmed;
+}
+/* Largest count row i may take without exceeding the total. */
+const rowMax = (rows, i, total) => total - (sumCounts(rows) - rows[i].count);
+
+/* Array of hex | null, one per piece. */
+function assignColours(total, rows, seed) {
+  if (sumCounts(rows) > total) throw new Error('colour counts exceed piece total');
+  const out = new Array(total).fill(null), perm = permutation(total, seed);
+  let k = 0;
+  for (const r of rows) for (let c = 0; c < r.count; c++) out[perm[k++]] = r.hex;
+  return out;
+}
+
+/* ============================================================================
+   svg — export string, true millimetres, one group per colour
+   ========================================================================= */
+function buildSVG(p, fills) {
+  const b = artBounds(p);
+  const cx = -b.x, cy = -b.y;
+  const w = +b.w.toFixed(3), h = +b.h.toFixed(3);
+  const pieces = pieceGeometry(p);
+  const groups = new Map();
+  pieces.forEach((pc, i) => {
+    const hex = fills[i]; if (!hex) return;
+    if (!groups.has(hex)) groups.set(hex, []);
+    groups.get(hex).push(piecePath(pc, cx, cy));
+  });
+  const out = [
+    '<?xml version="1.0" encoding="UTF-8"?>',
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${w}mm" height="${h}mm" viewBox="0 0 ${w} ${h}">`
+  ];
+  if (p.paper) out.push(`<rect x="0" y="0" width="${w}" height="${h}" fill="${p.paper}"/>`);
+  for (const [hex, ds] of groups) {
+    out.push(`<g fill="${hex}" fill-rule="evenodd" stroke="${hex}" stroke-width="${SEAM_MM}" stroke-linejoin="round">`);
+    ds.forEach(d => out.push(`<path d="${d}"/>`));
+    out.push('</g>');
+  }
+  out.push('</svg>');
+  return out.join('\n');
+}
+
+/* ============================================================================
+   render — mm to px, used by both the preview and the PNG export
+   ========================================================================= */
+function renderTo(ctx, p, fills, opts) {
+  const { scale, paper, guides } = opts;
+  const b = artBounds(p);
+  const cx = -b.x, cy = -b.y;
+  ctx.save();
+  ctx.scale(scale, scale);
+  if (paper) { ctx.fillStyle = paper; ctx.fillRect(0, 0, b.w, b.h); }
+  ctx.lineJoin = 'round';
+  const pieces = pieceGeometry(p);
+  if (guides) {
+    const dark = !paper || CS.relLum(paper) < 0.18;
+    ctx.strokeStyle = paper && dark ? 'rgba(255,255,255,.22)' : 'rgba(30,32,33,.22)';
+    ctx.lineWidth = 1 / scale;
+    pieces.forEach((pc, i) => { if (!fills[i]) ctx.stroke(new Path2D(piecePath(pc, cx, cy))); });
+  }
+  ctx.lineWidth = Math.max(SEAM_MM, 0.5 / scale);
+  pieces.forEach((pc, i) => {
+    const hex = fills[i]; if (!hex) return;
+    const path = new Path2D(piecePath(pc, cx, cy));
+    ctx.fillStyle = ctx.strokeStyle = hex;
+    ctx.fill(path, 'evenodd');
+    ctx.stroke(path);
+  });
+  ctx.restore();
+  return b;
+}
+
+/* ============================================================================
+   UI
+   ========================================================================= */
+const state = {
+  span: 360, rotation: 0, donut: true, hole: 0.25,
+  rings: 3, slices: 48,
+  paper: '#1E2021', paperName: 'Core Black',
+  guides: true, frame: 'trim', pngIntent: 'print',
+  seed: (Math.random() * 2 ** 32) >>> 0,
+  rows: []
+};
+let nextRowId = 1;
+const colourByHex = hex => CS.ALL_COLOURS.find(c => c.hex === hex);
+const total = () => state.rings * state.slices;
+
+function params() {
+  return {
+    span: state.span, rotation: state.rotation, donut: state.donut, hole: state.hole,
+    rings: state.rings, slices: state.slices, frame: state.frame, paper: state.paper
+  };
+}
+
+/* --- colour rows --- */
+const rowEls = new Map();   // row id → { el, select, slider, num, out }
+
+function addRow(hex, count) {
+  if (state.rows.length >= MAX_COLOURS) return;
+  const used = new Set(state.rows.map(r => r.hex));
+  const c = (hex && !used.has(hex) && colourByHex(hex)) || CS.ALL_COLOURS.find(x => !used.has(x.hex));
+  const free = total() - sumCounts(state.rows);
+  const want = count ?? Math.max(1, Math.round(total() / 6));
+  state.rows.push({ id: nextRowId++, hex: c.hex, name: c.name, count: Math.max(0, Math.min(free, want)) });
+  buildRows();
+}
+function removeRow(id) {
+  const r = rowEls.get(id);
+  if (r) r.select.destroy();
+  state.rows = state.rows.filter(x => x.id !== id);
+  buildRows();
+}
+
+function buildRows() {
+  rowEls.forEach(r => r.select.destroy());
+  rowEls.clear();
+  const host = $('rows');
+  host.innerHTML = '';
+  state.rows.forEach((row, i) => {
+    const el = document.createElement('div');
+    el.className = 'crow';
+    const labelId = `rowLabel${row.id}`;
+    el.innerHTML =
+      `<div class="crow-head">` +
+        `<span id="${labelId}" hidden>Colour ${i + 1}</span>` +
+        `<div class="select"></div>` +
+        `<button class="icon-btn" type="button" aria-label="Remove colour ${i + 1}">&#10005;</button>` +
+      `</div>` +
+      `<div class="count">` +
+        `<div class="slider"><input type="range" min="0" step="1" aria-label="Pieces for colour ${i + 1}"></div>` +
+        `<input class="num" type="number" min="0" step="1" inputmode="numeric" aria-label="Pieces for colour ${i + 1}">` +
+      `</div>` +
+      `<div class="readout"></div>`;
+    host.appendChild(el);
+
+    const select = CS.colourSelect(el.querySelector('.select'), {
+      groups: CS.paletteGroups('ink'), labelId,
+      isDisabled: hex => state.rows.some(r => r.id !== row.id && r.hex === hex),
+      onPick: (name, hex) => {
+        if (state.rows.some(r => r.id !== row.id && r.hex === hex)) return;   // one row per colour
+        row.hex = hex; row.name = name;
+        select.sync(hex, name);
+        update();
+      }
+    });
+    select.sync(row.hex, row.name);
+
+    const slider = el.querySelector('input[type=range]');
+    const num = el.querySelector('.num');
+    const setCount = v => {
+      const max = rowMax(state.rows, state.rows.indexOf(row), total());
+      v = Math.round(Number(v));
+      row.count = Number.isFinite(v) ? Math.min(max, Math.max(0, v)) : 0;
+      update();
+    };
+    slider.oninput = () => setCount(slider.value);
+    num.oninput = () => { if (num.value !== '') setCount(num.value); };
+    num.onblur = () => { num.value = row.count; };
+    el.querySelector('.icon-btn').onclick = () => removeRow(row.id);
+
+    rowEls.set(row.id, { el, select, slider, num, out: el.querySelector('.readout') });
+  });
+  CS.initSliders(host);
+  $('addColour').disabled = state.rows.length >= MAX_COLOURS;
+  update();
+}
+
+/* Keep every row's ceiling in step with what the others have taken. */
+function syncRows() {
+  const T = total();
+  state.rows.forEach((row, i) => {
+    const r = rowEls.get(row.id); if (!r) return;
+    const max = rowMax(state.rows, i, T);
+    r.slider.max = Math.max(1, max);
+    r.slider.value = row.count;
+    r.slider.parentElement.classList.toggle('disabled', max === 0);
+    CS.fillTrack(r.slider);
+    r.num.max = max;
+    if (document.activeElement !== r.num) r.num.value = row.count;
+    r.out.innerHTML = `${row.count} of ${T} <em>&#183; up to ${max}</em>`;
+  });
+}
+
+function syncTally() {
+  const T = total(), filled = sumCounts(state.rows), empty = T - filled;
+  $('tallyOut').innerHTML = `Filled <b>${filled}</b> <em>&#183;</em> Empty <b>${empty}</b> <em>of ${T}</em>`;
+  const bar = $('tally');
+  bar.innerHTML = '';
+  state.rows.forEach(r => {
+    if (!r.count) return;
+    const s = document.createElement('span');
+    s.style.width = (r.count / T * 100) + '%';
+    s.style.background = r.hex;
+    bar.appendChild(s);
+  });
+}
+
+/* --- background --- */
+let bgSelect;
+function syncContrast() {
+  bgSelect.sync(state.paper, state.paperName);
+  const weak = state.rows.filter(r => r.count > 0 && CS.paletteContrast(r.hex, state.paper) < CS.CONTRAST_MIN);
+  $('contrastNotice').hidden = !weak.length;
+  if (weak.length) $('contrastNotice').textContent =
+    `${weak.map(r => r.name).join(', ')} on ${state.paperName} is very low contrast. Those pieces may disappear.`;
+}
+
+/* --- pipeline --- */
+function fills() { return assignColours(total(), state.rows, state.seed); }
+
+function update() {
+  syncRows();
+  syncTally();
+  syncContrast();
+  draw();
+}
+
+function draw() {
+  const p = params();
+  const b = artBounds(p);
+  const vp = document.querySelector('.viewport');
+  const fit = Math.min((vp.clientWidth - 64) / b.w, (vp.clientHeight - 64) / b.h);
+  const scale = Math.max(0.2, fit);
+  const dpr = Math.min(2, window.devicePixelRatio || 1);
+  const cv = $('preview');
+  cv.width = Math.round(b.w * scale * dpr);
+  cv.height = Math.round(b.h * scale * dpr);
+  cv.style.width = (b.w * scale) + 'px';
+  cv.style.height = (b.h * scale) + 'px';
+  cv.classList.toggle('transparent', !state.paper);
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.clearRect(0, 0, cv.width, cv.height);
+  renderTo(ctx, p, fills(), { scale: scale * dpr, paper: state.paper, guides: state.guides });
+
+  const T = total(), filled = sumCounts(state.rows);
+  $('piecesOut').innerHTML = `${state.rings} rings <em>&#215;</em> ${state.slices} slices <em>=</em> ${T} pieces`;
+  $('statPieces').innerHTML = `Pieces <b>${T}</b>`;
+  $('statFilled').innerHTML = `Filled <b>${filled}</b> / ${T}`;
+  $('statSize').innerHTML = `Art <b>${b.w.toFixed(0)} &#215; ${b.h.toFixed(0)} mm</b>`;
+  updatePngReadout(b);
+}
+function updatePngReadout(b = artBounds(params())) {
+  const plan = CS.pngPlan(b.w, b.h, state.pngIntent);
+  $('pngOut').innerHTML =
+    `${plan.w.toLocaleString()} &#215; ${plan.h.toLocaleString()} px <em>&#183;</em> ${Math.round(plan.dpi)} dpi`;
+}
+
+/* Divisions changed: the piece total moved, so re-prove the counts fit. */
+function onDivisions() {
+  const trimmed = fitCounts(state.rows, total());
+  $('fitNotice').hidden = !trimmed.length;
+  if (trimmed.length) $('fitNotice').textContent =
+    `Only ${total()} pieces now — scaled ${trimmed.join(', ')} down to fit.`;
+  update();
+}
+
+/* --- controls --- */
+CS.initSliders();
+function syncSpanPreset() {
+  [...$('spanPreset').children].forEach(c => c.setAttribute('aria-pressed', String(+c.dataset.v === state.span)));
+}
+$('span').oninput = e => {
+  state.span = +e.target.value;
+  $('spanOut').innerHTML = state.span + '&#176;';
+  syncSpanPreset();
+  draw();
+};
+CS.segment('spanPreset', v => {
+  $('span').value = v; CS.fillTrack($('span'));
+  $('span').oninput({ target: $('span') });
+});
+$('rotation').oninput = e => {
+  state.rotation = +e.target.value;
+  $('rotationOut').innerHTML = state.rotation + '&#176;';
+  draw();
+};
+CS.toggle('donut', on => { state.donut = on; $('holeField').hidden = !on; draw(); });
+$('hole').oninput = e => {
+  state.hole = +e.target.value / 100;
+  $('holeOut').innerHTML = `${e.target.value}% <em>of radius</em>`;
+  draw();
+};
+$('rings').oninput = e => {
+  state.rings = +e.target.value;
+  $('ringsOut').textContent = state.rings;
+  onDivisions();
+};
+$('slices').oninput = e => {
+  state.slices = +e.target.value;
+  $('slicesOut').textContent = state.slices;
+  onDivisions();
+};
+$('addColour').onclick = () => { $('fitNotice').hidden = true; addRow(); };
+$('shuffle').onclick = () => { state.seed = (Math.random() * 2 ** 32) >>> 0; draw(); };
+CS.toggle('guides', on => { state.guides = on; draw(); });
+CS.segment('frame', v => { state.frame = v; draw(); });
+CS.segment('pngIntent', v => { state.pngIntent = v; updatePngReadout(); });
+
+bgSelect = CS.colourSelect($('bgSelect'), {
+  groups: CS.paletteGroups('bg'), labelId: 'bgLabel',
+  onPick: (name, hex) => { state.paper = hex; state.paperName = name; update(); }
+});
+
+let resizeTimer = null;
+window.addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(draw, 100); });
+
+/* --- export --- */
+function slug() {
+  return `pie-${state.span}deg-${state.rings}r-${state.slices}s`;
+}
+$('exportSvg').onclick = () => CS.downloadSVG(buildSVG(params(), fills()), slug() + '.svg');
+$('exportPng').onclick = () => {
+  const p = params(), b = artBounds(p);
+  const plan = CS.pngPlan(b.w, b.h, state.pngIntent);
+  const cv = document.createElement('canvas');
+  cv.width = plan.w; cv.height = plan.h;
+  renderTo(cv.getContext('2d'), p, fills(), { scale: plan.scale, paper: state.paper, guides: false });
+  CS.downloadCanvas(cv, slug() + '.png');
+};
+
+CS.initLicences('Pie Generator');
+CS.fileProtocolNotice('Open the published link instead.');
+
+/* --- init: echoes the reference poster --- */
+[['#307FE2', 26], ['#E3E935', 20], ['#EE5340', 20], ['#D9D9D6', 22], ['#EB6FBD', 14]]
+  .forEach(([hex, n]) => state.rows.push({ id: nextRowId++, hex, name: colourByHex(hex).name, count: n }));
+buildRows();
+</script>
+</body>
+</html>
