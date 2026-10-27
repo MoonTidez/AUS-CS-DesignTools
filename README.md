@@ -4,7 +4,10 @@ Design tools for the Department of Career Services, American University of Sharj
 
 Everything here runs in the browser. Nothing to install, nothing uploaded, no accounts.
 
-**[Open Grid Raster →](https://YOUR-USERNAME.github.io/AUS-CS-DesignTools/)**
+**[Open the Design Tools →](https://moontidez.github.io/AUS-CS-DesignTools/)**
+
+The home page links to every tool. Inside a tool, the tabs in the top bar switch
+between tools and "Career Services" takes you back home.
 
 Working somewhere without internet? Download `portable.html` from this repository
 and open it from your computer — it is the same tool with the fonts built in.
@@ -78,14 +81,14 @@ There are two builds of the same tool:
 
 | File | For | Fonts |
 |---|---|---|
-| `index.html` | the published site | loaded from `fonts/` |
+| `raster.html` | the published site | loaded from `fonts/` |
 | `portable.html` | offline use, downloaded and opened from disk | built into the file |
 
 `portable.html` is deliberately not published — `_config.yml` excludes it, and the
 file itself refuses to run if it is ever served over the web. This keeps one
 canonical link for everyone.
 
-If you change the tool, change both. Since Build 11, `index.html` takes its shared
+If you change the tool, change both. Since Build 11, Grid Raster takes its shared
 code from `lib/` (below) while `portable.html` keeps everything inline, so a change
 to anything in `lib/` must be copied into `portable.html` by hand.
 
@@ -99,8 +102,9 @@ Code used by more than one tool lives here, so it is written once:
 | `lib/brand.js` | the Career Services and AUS palettes, luminance and contrast check, control wiring, the colour-select listbox, SVG/PNG download and PNG sizing, the Licences panel |
 | `lib/licences.js` | the tool licence and both font licences, shown in every tool's Licences panel |
 
-`index.html` and `pie-generator.html` use it. `video.html` and `event-form.html`
-still carry their own copies and can move over when next edited.
+`index.html` (home), `raster.html`, `pie-generator.html` and — for the tool tabs
+only — `video.html` use it. `video.html` and `event-form.html`
+otherwise still carry their own copies and can move over when next edited.
 
 **Brand values** — colours, spacing, fonts — live in the `:root` block at the top of
 `lib/brand.css`, and the palettes at the top of `lib/brand.js`. Rebranding means
@@ -116,7 +120,7 @@ you when it applies the second one.
 
 ### Updating the published tool
 
-Upload a new `index.html` over the old one, plus the `lib/` folder if it changed.
+Upload the changed tool file over the old one, plus the `lib/` folder if it changed.
 GitHub Pages picks it up within a minute.
 Remember to upload the matching `portable.html` too.
 The header carries a build number so you can confirm which version you are looking at
@@ -125,8 +129,12 @@ before reporting a problem.
 ### Adding another tool later
 
 Add one HTML file at the repository root, link `lib/brand.css`, `lib/licences.js`
-and `lib/brand.js`, and list it in this README. Existing links don't change — the
-Pie Generator, for example, is served at `…/AUS-CS-DesignTools/pie-generator.html`.
+and `lib/brand.js`, call `CS.toolNav('<file>.html')`, and add an entry to
+`CS.TOOLS` in `lib/brand.js`. That one entry puts it on the home page and in
+every tool's tabs. Then list it in this README.
+
+`index.html` is the home page. Grid Raster lives at `raster.html` (it was the
+site root before the home page existed).
 
 ---
 

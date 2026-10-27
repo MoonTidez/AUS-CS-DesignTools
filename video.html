@@ -73,6 +73,20 @@ body{
 .masthead .arrow{color:var(--color-muted)}
 .masthead .spacer{flex:1;min-width:var(--space-2)}
 .masthead .dim{color:var(--color-muted)}
+.masthead a.home{color:inherit;text-decoration:none}
+.masthead a.home:hover{color:var(--color-accent)}
+.masthead a.home:focus-visible{outline:2px solid var(--color-accent);outline-offset:2px}
+
+/* ---- tool switcher (mirrors lib/brand.css): full-height tabs in the masthead ---- */
+.toolnav{display:flex;align-self:stretch;border-left:1px solid var(--color-line)}
+.toolnav a{
+  display:flex;align-items:center;padding:0 var(--space-3);
+  border-right:1px solid var(--color-line);
+  color:var(--color-muted);text-decoration:none;font-size:10px;
+}
+.toolnav a:hover{color:var(--color-text);background:var(--color-sunk)}
+.toolnav a[aria-current=page]{background:var(--color-text);color:var(--white)}
+.toolnav a:focus-visible{outline:2px solid var(--color-accent);outline-offset:-2px}
 
 .app{display:grid;grid-template-columns:316px 1fr;height:calc(100vh - 34px);height:calc(100dvh - 34px)}
 
@@ -290,7 +304,7 @@ button.action:focus-visible{outline:2px solid var(--color-accent);outline-offset
   <span>Video Raster</span>
   <span class="dim">&#183; test build</span>
   <span class="spacer"></span>
-  <span class="dim" id="buildStamp">Build 2</span>
+  <span class="dim" id="buildStamp">Build 3</span>
 </header>
 
 <div class="app">
@@ -454,6 +468,7 @@ button.action:focus-visible{outline:2px solid var(--color-accent);outline-offset
   </div>
 </div>
 
+<script src="lib/brand.js"></script>
 <script>
 /* ============================================================================
    Video Raster — Department of Career Services
@@ -1433,5 +1448,6 @@ if(!('VideoEncoder' in window)){
   stageNotice('This browser has no WebCodecs support. Rendering needs Chrome or Edge; preview still works.');
 }
 </script>
+<script>CS.toolNav('video.html');</script>
 </body>
 </html>

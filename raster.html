@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Grid Raster — Career Services</title>
+<link rel="stylesheet" href="lib/brand.css">
+<style>
+/* Grid Raster only — shared styles live in lib/brand.css. */
+/* ---- drop zone ---- */
+.drop{
+  position:relative;
+  border:1px solid var(--color-line-strong);
+  padding:var(--space-5) var(--space-3);
+  text-align:center;cursor:pointer;color:var(--color-muted);
+  background-color:var(--color-surface);
+  background-image:
+    linear-gradient(var(--color-line) 1px,transparent 1px),
+    linear-gradient(90deg,var(--color-line) 1px,transparent 1px);
+  background-size:14px 14px;background-position:center;
+}
+.drop:hover,.drop.over{border-color:var(--color-accent);color:var(--color-accent)}
+.drop.over{background-color:var(--color-sunk)}
+.drop strong{display:block;color:var(--color-text);font-weight:500}
+.drop span{position:relative;background:var(--color-surface);padding:0 var(--space-2)}
+.filemeta{margin-top:var(--space-2);font-family:var(--font-mono);font-size:11px;color:var(--color-muted)}
+.filemeta b{color:var(--color-text);font-weight:500}
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <span>Career Services</span>
+  <span class="arrow">&#8594;</span>
+  <span>Grid Raster</span>
+  <span class="spacer"></span>
+  <span class="dim" id="buildStamp">Build 13</span>
+</header>
+
+<div class="app">
+  <aside class="panel">
+
+    <section class="group">
+      <h2>Source</h2>
+      <div class="drop" id="drop" tabindex="0" role="button">
+        <strong>Drop an image</strong>
+        <span>paste, or click to browse</span>
+      </div>
+      <input type="file" id="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" hidden>
+      <div class="filemeta" id="filemeta" hidden></div>
+      <div class="notice" id="fileError" hidden></div>
+    </section>
+
+    <section class="group">
+      <h2>Raster</h2>
+      <div class="seg" id="glyphMode">
+        <button data-v="plus" aria-pressed="true">Node</button>
+        <button data-v="square" aria-pressed="false">Grid</button>
+      </div>
+      <div class="field toggle" id="flushField" hidden style="margin-top:var(--space-3)">
+        <label for="squareFlush">Fill cell at black</label>
+        <button class="switch" id="squareFlush" aria-pressed="false" aria-label="Fill cell at black"></button>
+      </div>
+    </section>
+
+    <section class="group">
+      <h2>Output</h2>
+      <div class="field">
+        <div class="field-head"><label>Mode</label></div>
+        <div class="seg" id="mode">
+          <button data-v="bw" aria-pressed="false">Black &amp; white</button>
+          <button data-v="gray" aria-pressed="true">Grayscale</button>
+        </div>
+      </div>
+      <div class="field" id="thresholdField" hidden>
+        <div class="field-head">
+          <label for="threshold">Threshold</label>
+          <span class="readout" id="thresholdOut">50%</span>
+        </div>
+        <div class="slider"><input type="range" id="threshold" min="0" max="100" step="1" value="50"></div>
+      </div>
+    </section>
+
+    <section class="group">
+      <h2>Scale</h2>
+      <div class="field">
+        <div class="field-head">
+          <label for="scale">Image scale</label>
+          <div class="seg mini" id="scaleMode">
+            <button data-v="pct" aria-pressed="true">%</button>
+            <button data-v="px" aria-pressed="false">px</button>
+          </div>
+        </div>
+        <div class="slider disabled" id="scaleWrap"><input type="range" id="scale" min="5" max="100" step="1" value="25" disabled></div>
+        <div class="readout" id="scaleOut" style="margin-top:var(--space-2)">&#8212;</div>
+      </div>
+      <div class="notice" id="capNotice" hidden></div>
+    </section>
+
+    <section class="group">
+      <h2>Tone</h2>
+      <div class="field">
+        <div class="field-head">
+          <label for="brightness">Brightness</label>
+          <span class="readout" id="brightnessOut">0</span>
+        </div>
+        <div class="slider"><input type="range" id="brightness" min="-100" max="100" step="1" value="0"></div>
+      </div>
+      <div class="field">
+        <div class="field-head">
+          <label for="contrast">Contrast</label>
+          <span class="readout" id="contrastOut">0</span>
+        </div>
+        <div class="slider"><input type="range" id="contrast" min="-100" max="100" step="1" value="0"></div>
+      </div>
+      <div class="field">
+        <div class="field-head">
+          <label for="gamma">Gamma</label>
+          <span class="readout" id="gammaOut">1.00</span>
+        </div>
+        <div class="slider"><input type="range" id="gamma" min="0" max="1000" step="1" value="500"></div>
+      </div>
+      <div class="field toggle">
+        <label for="invert">Invert</label>
+        <button class="switch" id="invert" aria-pressed="false" aria-label="Invert"></button>
+      </div>
+    </section>
+
+    <section class="group">
+      <h2>Colour</h2>
+      <div class="field">
+        <div class="field-head"><label id="inkLabel">Raster</label></div>
+        <div class="select" id="inkSelect"></div>
+      </div>
+      <div class="field">
+        <div class="field-head"><label id="bgLabel">Background</label></div>
+        <div class="select" id="bgSelect"></div>
+      </div>
+      <div class="notice" id="contrastNotice" hidden></div>
+    </section>
+
+    <section class="group">
+      <h2>Export</h2>
+      <div class="field">
+        <div class="field-head"><label>PNG resolution</label></div>
+        <div class="seg" id="pngIntent">
+          <button data-v="screen" aria-pressed="false">Screen</button>
+          <button data-v="print" aria-pressed="true">Print</button>
+          <button data-v="max" aria-pressed="false">Max</button>
+        </div>
+        <div class="readout" id="pngOut" style="margin-top:var(--space-2)">&#8212;</div>
+      </div>
+    </section>
+
+  </aside>
+
+  <main class="stage">
+    <div class="stage-bar">
+      <span class="stat" id="statGrid">&#8212;</span>
+      <span class="stat" id="statBoard"></span>
+      <span class="stat" id="statCells"></span>
+      <span class="spacer"></span>
+      <button class="action ghost" id="exportPng" disabled>PNG</button>
+      <button class="action" id="exportSvg" disabled>SVG</button>
+    </div>
+    <div class="notice" id="stageNotice" hidden></div>
+    <div class="viewport">
+      <canvas id="preview" hidden></canvas>
+      <p class="empty" id="emptyState">Drop an image to build a raster. Nothing leaves this page &#8212; all processing is local.</p>
+    </div>
+  </main>
+</div>
+
+<script src="lib/licences.js"></script>
+<script src="lib/brand.js"></script>
+<script>
+/* ============================================================================
+   Grid Raster — Department of Career Services
+   Fully client-side. Palette, controls, export and licences come from
+   lib/brand.js; logic below is grouped as geometry / sampler / render / svg /
+   png / ui.
+   ========================================================================= */
+
+/* ---- constants (tune here, not in the UI) ------------------------------- */
+const PT_MM         = 25.4 / 72;
+const B_MM          = 8;
+const GAP_RATIO     = 0.25;
+const PITCH         = B_MM * (1 + GAP_RATIO);
+const BG_TAPER_T    = 0.3125;
+const FG_STROKE_PT  = 1;
+const BG_STROKE_PT  = 0.25;
+const FG_MAX_MM     = B_MM;
+const T_MIN         = 0.02;
+const MAX_GRID_SHORT = 400;
+const QUANT_MM      = 0.005;
+const SQ_CELL_MM    = 9;
+const SQ_GAP_MAX_MM = 8;
+
+const pitchFor = glyph => glyph === 'square' ? SQ_CELL_MM : PITCH;
+const squareMax = flush => flush ? SQ_CELL_MM : SQ_GAP_MAX_MM;
+
+/* ---- shared library: palette, colour, controls, export (lib/brand.js) ---- */
+const { $, SRGB_TO_LIN, linToSrgb, paletteContrast, CONTRAST_MIN } = CS;
+
+/* ============================================================================
+   geometry — pure
+   ========================================================================= */
+function cellGeometry(t, p) {
+  if (p.mode === 'bw') {
+    if (t < p.threshold) return null;
+    return { bg: B_MM, bgStroke: BG_STROKE_PT * PT_MM, fg: FG_MAX_MM, fgStroke: FG_STROKE_PT * PT_MM };
+  }
+  if (t < T_MIN) return null;
+  const bg = t >= BG_TAPER_T ? B_MM : B_MM * (t / BG_TAPER_T);
+  return { bg, bgStroke: BG_STROKE_PT * PT_MM, fg: FG_MAX_MM * t, fgStroke: FG_STROKE_PT * PT_MM };
+}
+function squareSize(t, p) {
+  const max = squareMax(p.squareFlush);
+  if (p.mode === 'bw') return t < p.threshold ? 0 : max;
+  return t < T_MIN ? 0 : max * t;
+}
+const gridLongFrom = (gridShort, srcShort, srcLong) =>
+  Math.max(1, Math.round(gridShort * srcLong / srcShort));
+
+/* Thinnest ink feature in mm for the current settings — drives PNG sizing. */
+const SQ_FEATURE_T = 0.25;         // squares lighter than this are specks; ignore
+function thinnestFeatureMM(params) {
+  if (params.glyph === 'square') {
+    const max = squareMax(params.squareFlush);
+    return params.mode === 'bw' ? max : max * SQ_FEATURE_T;
+  }
+  return BG_STROKE_PT * PT_MM;      // the 0.25pt lattice hairline
+}
+
+/* ============================================================================
+   sampler — pure
+   ========================================================================= */
+/* Rec. 709 luminance on linearised sRGB. Alpha composited over white. */
+function decodeSource(imageData) {
+  const { width: w, height: h, data } = imageData;
+  const lin = new Float32Array(w * h);
+  for (let i = 0, p = 0; i < lin.length; i++, p += 4) {
+    const a = data[p + 3] / 255;
+    const y = 0.2126 * SRGB_TO_LIN[data[p]] + 0.7152 * SRGB_TO_LIN[data[p + 1]] + 0.0722 * SRGB_TO_LIN[data[p + 2]];
+    lin[i] = a === 1 ? y : y * a + (1 - a);
+  }
+  return { w, h, lin };
+}
+
+function downsample(src, gw, gh, region) {
+  const { w, h, lin } = src;
+  const rx = region ? region.x : 0, ry = region ? region.y : 0;
+  const rw = region ? region.w : w,  rh = region ? region.h : h;
+  const out = new Float32Array(gw * gh);
+  for (let j = 0; j < gh; j++) {
+    const y0 = ry + Math.floor(j * rh / gh);
+    const y1 = Math.min(ry + rh, Math.max(y0 + 1, ry + Math.floor((j + 1) * rh / gh)));
+    for (let i = 0; i < gw; i++) {
+      const x0 = rx + Math.floor(i * rw / gw);
+      const x1 = Math.min(rx + rw, Math.max(x0 + 1, rx + Math.floor((i + 1) * rw / gw)));
+      let s = 0, n = 0;
+      for (let y = y0; y < y1; y++) {
+        const row = y * w;
+        for (let x = x0; x < x1; x++) { s += lin[row + x]; n++; }
+      }
+      out[j * gw + i] = linToSrgb(s / n);
+    }
+  }
+  return out;
+}
+
+function toneLUT({ brightness, contrast, gamma, invert }) {
+  const k = contrast >= 0 ? (100 + contrast) / 100 : 100 / (100 - contrast);
+  const lut = new Float32Array(1024);
+  for (let i = 0; i < 1024; i++) {
+    let v = i / 1023;
+    v = v + brightness / 100;
+    v = (v - 0.5) * k + 0.5;
+    v = Math.min(1, Math.max(0, v));
+    v = Math.pow(v, 1 / gamma);
+    if (invert) v = 1 - v;
+    lut[i] = Math.min(1, Math.max(0, v));
+  }
+  return lut;
+}
+function applyTone(grid, lut) {
+  const t = new Float32Array(grid.length);
+  for (let i = 0; i < grid.length; i++) t[i] = 1 - lut[(grid[i] * 1023) | 0];
+  return t;
+}
+
+/* ============================================================================
+   glyph walk — one traversal, shared by canvas / svg / png
+   ========================================================================= */
+function buildPlus(t, gw, gh, params) {
+  const buckets = new Map();
+  const push = (sw, cx, cy, size) => {
+    if (sw <= 0 || size <= 0) return;
+    const key = Math.max(QUANT_MM, Math.round(sw / QUANT_MM) * QUANT_MM);
+    let arr = buckets.get(key);
+    if (!arr) buckets.set(key, arr = []);
+    arr.push(cx, cy, size);
+  };
+  let drawn = 0;
+  for (let j = 0; j < gh; j++) {
+    for (let i = 0; i < gw; i++) {
+      const g = cellGeometry(t[j * gw + i], params);
+      if (!g) continue;
+      drawn++;
+      const cx = (i + 0.5) * PITCH, cy = (j + 0.5) * PITCH;
+      push(g.bgStroke, cx, cy, g.bg);
+      push(g.fgStroke, cx, cy, g.fg);
+    }
+  }
+  return { buckets, drawn };
+}
+function buildSquares(t, gw, gh, params) {
+  const cells = [];
+  for (let j = 0; j < gh; j++) {
+    for (let i = 0; i < gw; i++) {
+      const s = squareSize(t[j * gw + i], params);
+      if (s <= 0) continue;
+      cells.push((i + 0.5) * SQ_CELL_MM, (j + 0.5) * SQ_CELL_MM, s);
+    }
+  }
+  return { cells, drawn: cells.length / 3 };
+}
+
+/* ============================================================================
+   render — mm to px, used by both the preview and the PNG export
+   ========================================================================= */
+function renderTo(ctx, t, gw, gh, params, opts) {
+  const { scale, ink, paper, hairlineFloor } = opts;
+  const pitch = pitchFor(params.glyph);
+  if (paper) {
+    ctx.fillStyle = paper;
+    ctx.fillRect(0, 0, gw * pitch * scale, gh * pitch * scale);
+  }
+  if (params.glyph === 'square') {
+    const { cells, drawn } = buildSquares(t, gw, gh, params);
+    ctx.fillStyle = ink;
+    // Snap to whole device pixels. In flush mode adjacent cells abut exactly,
+    // and fractional edges would leave anti-aliased seams across solid areas.
+    for (let k = 0; k < cells.length; k += 3) {
+      const s = cells[k + 2] * scale, half = s / 2;
+      const x0 = Math.round(cells[k] * scale - half);
+      const y0 = Math.round(cells[k + 1] * scale - half);
+      const x1 = Math.round(cells[k] * scale + half);
+      const y1 = Math.round(cells[k + 1] * scale + half);
+      ctx.fillRect(x0, y0, Math.max(1, x1 - x0), Math.max(1, y1 - y0));
+    }
+    return drawn;
+  }
+  ctx.strokeStyle = ink;
+  ctx.lineCap = 'butt';
+  const { buckets, drawn } = buildPlus(t, gw, gh, params);
+  for (const [sw, cells] of buckets) {
+    const path = new Path2D();
+    for (let k = 0; k < cells.length; k += 3) {
+      const cx = cells[k] * scale, cy = cells[k + 1] * scale, half = cells[k + 2] * scale / 2;
+      path.moveTo(cx - half, cy); path.lineTo(cx + half, cy);
+      path.moveTo(cx, cy - half); path.lineTo(cx, cy + half);
+    }
+    ctx.lineWidth = hairlineFloor ? Math.max(sw * scale, hairlineFloor) : sw * scale;
+    ctx.stroke(path);
+  }
+  return drawn;
+}
+
+/* ============================================================================
+   svg — export string, true millimetres
+   ========================================================================= */
+function buildSVG(t, gw, gh, params) {
+  const pitch = pitchFor(params.glyph);
+  const wmm = +(gw * pitch).toFixed(3), hmm = +(gh * pitch).toFixed(3);
+  const ink = params.ink;
+  const head = '<?xml version="1.0" encoding="UTF-8"?>';
+  const open = attrs =>
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${wmm}mm" height="${hmm}mm" ` +
+    `viewBox="0 0 ${wmm} ${hmm}" ${attrs}>`;
+  const bgRect = params.paper
+    ? `<rect x="0" y="0" width="${wmm}" height="${hmm}" fill="${params.paper}" stroke="none"/>`
+    : '';
+
+  if (params.glyph === 'square') {
+    const { cells } = buildSquares(t, gw, gh, params);
+    const out = [head, open(`fill="${ink}" stroke="none"`)];
+    if (bgRect) out.push(bgRect);
+    for (let k = 0; k < cells.length; k += 3) {
+      const s = cells[k + 2], half = s / 2;
+      out.push(`<rect x="${(cells[k] - half).toFixed(3)}" y="${(cells[k + 1] - half).toFixed(3)}" ` +
+               `width="${s.toFixed(3)}" height="${s.toFixed(3)}"/>`);
+    }
+    out.push('</svg>');
+    return out.join('\n');
+  }
+
+  const { buckets } = buildPlus(t, gw, gh, params);
+  const out = [head, open(`fill="none" stroke="${ink}" stroke-linecap="butt"`)];
+  if (bgRect) out.push(bgRect);
+  const keys = [...buckets.keys()].sort((a, b) => a - b);
+  for (const sw of keys) {
+    const cells = buckets.get(sw), d = [];
+    for (let k = 0; k < cells.length; k += 3) {
+      const half = cells[k + 2] / 2, cx = cells[k], cy = cells[k + 1];
+      d.push(`M${(cx - half).toFixed(3)} ${cy.toFixed(3)}h${(half * 2).toFixed(3)}`);
+      d.push(`M${cx.toFixed(3)} ${(cy - half).toFixed(3)}v${(half * 2).toFixed(3)}`);
+    }
+    out.push(`<g stroke-width="${sw.toFixed(4)}"><path d="${d.join('')}"/></g>`);
+  }
+  out.push('</svg>');
+  return out.join('\n');
+}
+
+/* ============================================================================
+   png — resolution derived from the thinnest ink feature, not a DPI field
+   ========================================================================= */
+function pngPlan(gw, gh, params, intent) {
+  const pitch = pitchFor(params.glyph);
+  return CS.pngPlan(gw * pitch, gh * pitch, intent, thinnestFeatureMM(params));
+}
+
+/* ============================================================================
+   UI
+   ========================================================================= */
+const state = {
+  src:null, name:'', gridShort:0, scaleMode:'pct',
+  glyph:'plus', squareFlush:false,
+  mode:'gray', threshold:0.5,
+  brightness:0, contrast:0, gamma:1, invert:false,
+  ink:'#1E2021', inkName:'Core Black',
+  paper:'#FFFFFF', paperName:'White',
+  pngIntent:'print',
+  grid:null, gw:0, gh:0, t:null, capped:false
+};
+
+/* --- colour selects --- */
+function buildSelect(rootId, kind, labelId) {
+  return CS.colourSelect($(rootId), {
+    groups: CS.paletteGroups(kind), labelId,
+    onPick: (name, hex) => pick(kind, name, hex)
+  });
+}
+
+let inkSelect, bgSelect;
+
+function pick(kind, name, hex) {
+  if (kind === 'ink') {
+    if (hex === null) return;              // the raster itself can't be transparent
+    state.ink = hex; state.inkName = name;
+  } else {
+    state.paper = hex; state.paperName = name;
+  }
+  syncSwatches();
+  draw();
+}
+function syncSwatches() {
+  if (inkSelect) inkSelect.sync(state.ink, state.inkName);
+  if (bgSelect)  bgSelect.sync(state.paper, state.paperName);
+  const c = paletteContrast(state.ink, state.paper);
+  const weak = c < CONTRAST_MIN;
+  $('contrastNotice').hidden = !weak;
+  if (weak) $('contrastNotice').textContent =
+    `${state.inkName} on ${state.paperName} is very low contrast. The raster may be hard to read.`;
+}
+
+/* --- image loading --- */
+function loadFile(file, label) {
+  const ok = ['image/png','image/jpeg','image/webp','image/svg+xml'];
+  $('fileError').hidden = true;
+  if (!file) return;
+  const name = label || file.name || 'pasted-image.png';
+  if (!ok.includes(file.type)) {
+    $('fileError').hidden = false;
+    $('fileError').textContent = `${name} isn't a supported image. Use PNG, JPEG, WebP, or SVG.`;
+    return;
+  }
+  const img = new Image();
+  const reader = new FileReader();
+  img.onload = () => {
+    let w = img.naturalWidth || 1024;
+    let h = img.naturalHeight || 1024;
+    const cap = 4000;
+    if (Math.max(w, h) > cap) { const s = cap / Math.max(w, h); w = Math.round(w * s); h = Math.round(h * s); }
+    const c = document.createElement('canvas');
+    c.width = w; c.height = h;
+    const cx = c.getContext('2d', { willReadFrequently: true });
+    cx.fillStyle = '#fff'; cx.fillRect(0, 0, w, h);
+    cx.drawImage(img, 0, 0, w, h);
+    state.src = decodeSource(cx.getImageData(0, 0, w, h));
+    state.name = name.replace(/\.[^.]+$/, '');
+
+    $('filemeta').hidden = false;
+    $('filemeta').innerHTML = `<b>${name}</b><br>${w} &#215; ${h} px`;
+    $('emptyState').hidden = true;
+    $('preview').hidden = false;
+    $('exportSvg').disabled = false;
+    $('exportPng').disabled = false;
+    $('scale').disabled = false;
+    $('scaleWrap').classList.remove('disabled');
+
+    state.gridShort = Math.max(1, Math.round(Math.min(w, h) * 0.25));
+    syncScaleSlider();
+    resample();
+  };
+  const fail = () => {
+    $('fileError').hidden = false;
+    $('fileError').textContent = `Couldn't decode ${name}. The file may be damaged or unsupported.`;
+  };
+  img.onerror = fail;
+  reader.onerror = fail;
+  reader.onload = () => { img.src = reader.result; };
+  reader.readAsDataURL(file);
+}
+
+/* --- scale --- */
+function srcShort(){ return state.src ? Math.min(state.src.w, state.src.h) : 1; }
+function srcLong(){ return state.src ? Math.max(state.src.w, state.src.h) : 1; }
+
+function syncScaleSlider() {
+  const s = $('scale'), short = srcShort();
+  if (state.scaleMode === 'pct') {
+    s.min = 5; s.max = 100; s.step = 1;
+    let pct = Math.round(state.gridShort / short * 100);
+    pct = Math.min(100, Math.max(5, pct));
+    if (Math.round(short * pct / 100) < state.gridShort) pct++;
+    s.value = Math.min(100, pct);
+    state.gridShort = Math.max(1, Math.round(short * s.value / 100));
+  } else {
+    s.min = Math.max(1, Math.round(short * 0.01)); s.max = short; s.step = 1;
+    s.value = Math.min(short, Math.max(+s.min, state.gridShort));
+    state.gridShort = +s.value;
+  }
+  fillTrack(s);
+  updateScaleReadout();
+}
+function requestedGrid() {
+  const gs = state.gridShort;
+  const gl = gridLongFrom(gs, srcShort(), srcLong());
+  const portrait = state.src && state.src.h < state.src.w;
+  return portrait ? { w: gl, h: gs } : { w: gs, h: gl };
+}
+function effectiveGrid() {
+  const req = requestedGrid();
+  const short = Math.min(req.w, req.h);
+  state.capped = short > MAX_GRID_SHORT;
+  if (!state.capped) return req;
+  const f = MAX_GRID_SHORT / short;
+  return { w: Math.max(1, Math.round(req.w * f)), h: Math.max(1, Math.round(req.h * f)) };
+}
+function updateScaleReadout() {
+  if (!state.src) return;
+  const req = requestedGrid(), eff = effectiveGrid();
+  const pct = state.gridShort / srcShort() * 100;
+  $('scaleOut').innerHTML = state.scaleMode === 'pct'
+    ? `${$('scale').value}% <em>&#8594;</em> ${req.w} &#215; ${req.h} units`
+    : `${state.gridShort} units <em>&#8594;</em> ${req.w} &#215; ${req.h} units <em>(${pct.toFixed(1)}%)</em>`;
+  $('capNotice').hidden = !state.capped;
+  if (state.capped) $('capNotice').textContent =
+    `Capped at ${MAX_GRID_SHORT} units on the short side. Rendering ${eff.w} \u00D7 ${eff.h}.`;
+}
+
+/* --- pipeline --- */
+let timer = null;
+function resample() {
+  if (!state.src) return;
+  const g = effectiveGrid();
+  state.gw = g.w; state.gh = g.h;
+  state.grid = downsample(state.src, g.w, g.h, null);
+  retone();
+}
+function resampleDebounced(){ clearTimeout(timer); timer = setTimeout(resample, 100); }
+function retone() {
+  if (!state.grid) return;
+  state.t = applyTone(state.grid, toneLUT(state));
+  draw();
+}
+function params() {
+  return {
+    glyph: state.glyph, squareFlush: state.squareFlush,
+    mode: state.mode, threshold: state.threshold,
+    ink: state.ink, paper: state.paper
+  };
+}
+function draw() {
+  if (!state.t) return;
+  const p = params();
+  const vp = document.querySelector('.viewport');
+  const pitch = pitchFor(state.glyph);
+  const wmm = state.gw * pitch, hmm = state.gh * pitch;
+  const fit = Math.min((vp.clientWidth - 64) / wmm, (vp.clientHeight - 64) / hmm);
+  const scale = Math.max(0.2, fit);
+  const dpr = Math.min(2, window.devicePixelRatio || 1);
+  const cv = $('preview');
+  cv.width = Math.round(wmm * scale * dpr);
+  cv.height = Math.round(hmm * scale * dpr);
+  cv.style.width = (wmm * scale) + 'px';
+  cv.style.height = (hmm * scale) + 'px';
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, wmm * scale, hmm * scale);
+
+  const drawn = renderTo(ctx, state.t, state.gw, state.gh, p, {
+    scale, ink: state.ink,
+    paper: state.paper || '#FFFFFF',   // preview always needs something behind it
+    hairlineFloor: 0.35
+  });
+
+  $('statGrid').innerHTML = `Grid <b>${state.gw} &#215; ${state.gh}</b>`;
+  $('statBoard').innerHTML = `Board <b>${wmm.toFixed(0)} &#215; ${hmm.toFixed(0)} mm</b>`;
+  $('statCells').innerHTML = `Cells <b>${drawn.toLocaleString()}</b> / ${(state.gw * state.gh).toLocaleString()}`;
+  updatePngReadout();
+}
+function updatePngReadout() {
+  if (!state.t) return;
+  const plan = pngPlan(state.gw, state.gh, params(), state.pngIntent);
+  $('pngOut').innerHTML =
+    `${plan.w.toLocaleString()} &#215; ${plan.h.toLocaleString()} px <em>&#183;</em> ${Math.round(plan.dpi)} dpi ` +
+    `<em>at ${plan.wmm.toFixed(0)} &#215; ${plan.hmm.toFixed(0)} mm</em>`;
+  const soft = plan.soft;
+  $('stageNotice').hidden = !soft;
+  if (soft) $('stageNotice').textContent =
+    `Thinnest ink lands on ${plan.featurePx.toFixed(2)} px at this size, so the PNG will soften. ` +
+    `Export SVG for full detail\u2014 it stays sharp at any size.`;
+}
+
+/* --- slider fill --- */
+const fillTrack = CS.fillTrack;
+CS.initSliders();
+
+/* --- controls --- */
+const segment = CS.segment;
+segment('glyphMode', v => {
+  state.glyph = v;
+  $('flushField').hidden = v !== 'square';
+  draw();
+});
+segment('mode', v => {
+  state.mode = v;
+  $('thresholdField').hidden = v !== 'bw';
+  draw();
+});
+segment('scaleMode', v => { state.scaleMode = v; syncScaleSlider(); resampleDebounced(); });
+segment('pngIntent', v => { state.pngIntent = v; updatePngReadout(); });
+
+const switchToggle = (id, key, after) => CS.toggle(id, on => { state[key] = on; after(); });
+switchToggle('squareFlush', 'squareFlush', draw);
+switchToggle('invert', 'invert', retone);
+
+$('scale').oninput = e => {
+  state.gridShort = state.scaleMode === 'pct'
+    ? Math.max(1, Math.round(srcShort() * +e.target.value / 100))
+    : +e.target.value;
+  updateScaleReadout();
+  resampleDebounced();
+};
+$('threshold').oninput = e => {
+  state.threshold = +e.target.value / 100;
+  $('thresholdOut').textContent = e.target.value + '%';
+  draw();
+};
+$('brightness').oninput = e => {
+  state.brightness = +e.target.value;
+  $('brightnessOut').textContent = (state.brightness > 0 ? '+' : '') + state.brightness;
+  retone();
+};
+$('contrast').oninput = e => {
+  state.contrast = +e.target.value;
+  $('contrastOut').textContent = (state.contrast > 0 ? '+' : '') + state.contrast;
+  retone();
+};
+const GMIN = Math.log(0.2), GMAX = Math.log(5);
+$('gamma').oninput = e => {
+  state.gamma = Math.exp(GMIN + (GMAX - GMIN) * (+e.target.value / 1000));
+  $('gammaOut').textContent = state.gamma.toFixed(2);
+  retone();
+};
+
+/* --- input --- */
+const drop = $('drop');
+drop.onclick = () => $('file').click();
+drop.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); $('file').click(); } };
+$('file').onchange = e => loadFile(e.target.files[0]);
+['dragenter','dragover'].forEach(ev => window.addEventListener(ev, e => {
+  e.preventDefault(); drop.classList.add('over');
+}));
+['dragleave','drop'].forEach(ev => window.addEventListener(ev, e => {
+  e.preventDefault(); if (ev === 'drop' || e.target === document.body) drop.classList.remove('over');
+}));
+window.addEventListener('drop', e => { e.preventDefault(); loadFile(e.dataTransfer.files[0]); });
+window.addEventListener('paste', e => {
+  const items = [...(e.clipboardData?.items || [])];
+  const imageItem = items.find(i => i.kind === 'file' && i.type.startsWith('image/'));
+  if (imageItem) {
+    e.preventDefault();
+    const blob = imageItem.getAsFile();
+    const ext = (blob.type.split('/')[1] || 'png').replace('+xml', '');
+    loadFile(blob, `pasted-image.${ext}`);
+    return;
+  }
+  const textItem = items.find(i => i.kind === 'string' && i.type === 'text/plain');
+  if (!textItem) return;
+  textItem.getAsString(text => {
+    const s = text.trim();
+    if (!s.startsWith('<svg') && !s.startsWith('<?xml')) {
+      $('fileError').hidden = false;
+      $('fileError').textContent = 'That clipboard content has no image in it. Copy an image, then paste again.';
+      return;
+    }
+    loadFile(new File([s], 'pasted.svg', { type: 'image/svg+xml' }), 'pasted.svg');
+  });
+});
+window.addEventListener('resize', () => { clearTimeout(timer); timer = setTimeout(draw, 100); });
+
+/* --- export --- */
+const download = CS.download;
+function slug() {
+  return `${state.name || 'raster'}-${state.glyph === 'square' ? 'grid' : 'node'}-raster`;
+}
+$('exportSvg').onclick = () => {
+  download(new Blob([buildSVG(state.t, state.gw, state.gh, params())],
+    { type: 'image/svg+xml' }), slug() + '.svg');
+};
+$('exportPng').onclick = () => {
+  const p = params();
+  const plan = pngPlan(state.gw, state.gh, p, state.pngIntent);
+  const cv = document.createElement('canvas');
+  cv.width = plan.w; cv.height = plan.h;
+  const ctx = cv.getContext('2d');
+  renderTo(ctx, state.t, state.gw, state.gh, p, {
+    scale: plan.scale, ink: state.ink, paper: state.paper, hairlineFloor: 0
+  });
+  cv.toBlob(b => download(b, slug() + '.png'), 'image/png');
+};
+
+
+CS.initLicences('Grid Raster');
+CS.toolNav('raster.html');
+CS.fileProtocolNotice('Use portable.html for offline work, or open the published link.');
+
+/* --- init --- */
+inkSelect = buildSelect('inkSelect', 'ink', 'inkLabel');
+bgSelect  = buildSelect('bgSelect',  'bg',  'bgLabel');
+syncSwatches();
+</script>
+</body>
+</html>
