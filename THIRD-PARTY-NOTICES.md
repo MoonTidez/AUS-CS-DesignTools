@@ -35,9 +35,9 @@ Embedded unmodified as `GeistMono_wght_.woff2`, version 1.700.
 
 ## Notes on compliance
 
-Both fonts are embedded as base64 inside `portable.html`. Because that data can be
-extracted, this is treated as redistribution rather than mere embedding, and the
-full licence text plus copyright notice is included accordingly.
+Both fonts are shipped as `.woff2` files in `fonts/` and served alongside the
+tools. That is treated as redistribution, so the full licence text plus copyright
+notice is included accordingly.
 
 Neither typeface declares a Reserved Font Name, and neither has been modified —
 the `.woff2` files are the originals as published. The fonts are not sold

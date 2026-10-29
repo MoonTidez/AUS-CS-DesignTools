@@ -9,9 +9,6 @@ Everything here runs in the browser. Nothing to install, nothing uploaded, no ac
 The home page links to every tool. Inside a tool, the tabs in the top bar switch
 between tools and "Career Services" takes you back home.
 
-Working somewhere without internet? Download `portable.html` from this repository
-and open it from your computer — it is the same tool with the fonts built in.
-
 ---
 
 ## Grid Raster
@@ -24,7 +21,10 @@ or bitmap. Images are processed locally in your browser and never leave your mac
 1. Drop, paste, or browse for an image.
 2. Choose a raster — **Node** (the plus glyph) or **Grid** (squares).
 3. Set the scale, then adjust brightness, contrast, and gamma until the tones read well.
-4. Pick colours from the core brand or AUS palettes.
+4. Pick colours from the core brand or AUS palettes, or type a hex code into the
+   field at the bottom of any colour list to add a custom colour. Custom colours
+   are remembered in your browser and appear in every tool; the ✕ beside one
+   removes it.
 5. Export.
 
 ### Which export to use
@@ -77,20 +77,9 @@ SVG or PNG.
 
 ## Maintaining this
 
-There are two builds of the same tool:
-
-| File | For | Fonts |
-|---|---|---|
-| `raster.html` | the published site | loaded from `fonts/` |
-| `portable.html` | offline use, downloaded and opened from disk | built into the file |
-
-`portable.html` is deliberately not published — `_config.yml` excludes it, and the
-file itself refuses to run if it is ever served over the web. This keeps one
-canonical link for everyone.
-
-If you change the tool, change both. Since Build 11, Grid Raster takes its shared
-code from `lib/` (below) while `portable.html` keeps everything inline, so a change
-to anything in `lib/` must be copied into `portable.html` by hand.
+Every tool is one HTML file at the repository root. The tools load fonts from
+`fonts/` and shared code from `lib/`, so they need to be opened from the published
+site rather than from disk.
 
 ### Shared library — `lib/`
 
@@ -122,7 +111,6 @@ you when it applies the second one.
 
 Upload the changed tool file over the old one, plus the `lib/` folder if it changed.
 GitHub Pages picks it up within a minute.
-Remember to upload the matching `portable.html` too.
 The header carries a build number so you can confirm which version you are looking at
 before reporting a problem.
 

@@ -232,6 +232,38 @@ body{
   background-size:8px 8px;background-position:0 0,4px 4px;
 }
 
+/* custom colours: removable rows, and a hex field pinned to the list's foot */
+.select-custom{display:flex}
+.select-custom .select-option{flex:1;min-width:0}
+.select-remove{
+  flex:none;width:30px;border:0;border-left:1px solid var(--color-line);border-radius:0;
+  background:var(--color-surface);color:var(--color-muted);cursor:pointer;
+  font-family:var(--font-mono);font-size:10px;
+}
+.select-remove:hover{background:var(--color-sunk);color:var(--color-text)}
+.select-remove:focus-visible{outline:2px solid var(--color-accent);outline-offset:-2px}
+.select-add{
+  position:sticky;bottom:0;z-index:1;
+  display:flex;flex-wrap:wrap;align-items:center;gap:var(--space-2);
+  padding:var(--space-2);border-top:1px solid var(--color-line-strong);
+  background:var(--color-surface);
+}
+.select-hex{
+  flex:1;min-width:0;padding:4px 6px;border-radius:0;
+  border:1px solid var(--color-line-strong);background:var(--color-surface);color:var(--color-text);
+  font-family:var(--font-mono);font-size:11px;text-transform:uppercase;
+}
+.select-hex::placeholder{color:var(--color-muted)}
+.select-hex[aria-invalid=true]{border-color:var(--color-warn)}
+.select-hex:focus-visible{outline:2px solid var(--color-accent);outline-offset:1px}
+.select-addbtn{
+  flex:none;padding:5px var(--space-2);border-radius:0;cursor:pointer;
+  border:1px solid var(--color-text);background:var(--color-text);color:var(--white);
+  font-family:var(--font-mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;
+}
+.select-addbtn:focus-visible{outline:2px solid var(--color-accent);outline-offset:2px}
+.select-hexerr{flex-basis:100%;font-family:var(--font-mono);font-size:10px;color:var(--color-warn)}
+
 /* ---- stage ---- */
 .stage{display:flex;flex-direction:column;min-width:0}
 .stage-bar{

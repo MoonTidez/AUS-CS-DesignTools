@@ -51,7 +51,7 @@
   <span class="arrow">&#8594;</span>
   <span>Pie Generator</span>
   <span class="spacer"></span>
-  <span class="dim" id="buildStamp">Build 3</span>
+  <span class="dim" id="buildStamp">Build 4</span>
 </header>
 
 <div class="app">
@@ -194,7 +194,7 @@ const { $ } = CS;
 const DIAMETER_MM = 200;           // artwork size of a full circle
 const SEAM_MM     = 0.06;          // same-colour stroke that closes anti-alias seams
 const FULL_EPS    = 1e-6;
-const MAX_COLOURS = CS.ALL_COLOURS.length;
+const maxColours = () => CS.allColours().length;   // palette + custom
 
 /* ============================================================================
    geometry — pure. Angles in degrees, 0 at twelve o'clock, clockwise.
@@ -382,7 +382,7 @@ const state = {
   rows: []
 };
 let nextRowId = 1;
-const colourByHex = hex => CS.ALL_COLOURS.find(c => c.hex === hex);
+const colourByHex = CS.colourByHex;
 const total = () => state.rings * state.slices;
 
 function params() {
@@ -396,9 +396,9 @@ function params() {
 const rowEls = new Map();   // row id → { el, select, slider, num, out }
 
 function addRow(hex, count) {
-  if (state.rows.length >= MAX_COLOURS) return;
+  if (state.rows.length >= maxColours()) return;
   const used = new Set(state.rows.map(r => r.hex));
-  const c = (hex && !used.has(hex) && colourByHex(hex)) || CS.ALL_COLOURS.find(x => !used.has(x.hex));
+  const c = (hex && !used.has(hex) && colourByHex(hex)) || CS.allColours().find(x => !used.has(x.hex));
   const free = total() - sumCounts(state.rows);
   const want = count ?? Math.max(1, Math.round(total() / 6));
   state.rows.push({ id: nextRowId++, hex: c.hex, name: c.name, count: Math.max(0, Math.min(free, want)) });
@@ -434,7 +434,7 @@ function buildRows() {
     host.appendChild(el);
 
     const select = CS.colourSelect(el.querySelector('.select'), {
-      groups: CS.paletteGroups('ink'), labelId,
+      groups: () => CS.paletteGroups('ink'), labelId,
       isDisabled: hex => state.rows.some(r => r.id !== row.id && r.hex === hex),
       onPick: (name, hex) => {
         if (state.rows.some(r => r.id !== row.id && r.hex === hex)) return;   // one row per colour
@@ -461,9 +461,12 @@ function buildRows() {
     rowEls.set(row.id, { el, select, slider, num, out: el.querySelector('.readout') });
   });
   CS.initSliders(host);
-  $('addColour').disabled = state.rows.length >= MAX_COLOURS;
+  syncAddButton();
   update();
 }
+
+function syncAddButton() { $('addColour').disabled = state.rows.length >= maxColours(); }
+CS.onCustomChange(syncAddButton);
 
 /* Keep every row's ceiling in step with what the others have taken. */
 function syncRows() {
@@ -599,7 +602,7 @@ CS.segment('frame', v => { state.frame = v; draw(); });
 CS.segment('pngIntent', v => { state.pngIntent = v; updatePngReadout(); });
 
 bgSelect = CS.colourSelect($('bgSelect'), {
-  groups: CS.paletteGroups('bg'), labelId: 'bgLabel',
+  groups: () => CS.paletteGroups('bg'), labelId: 'bgLabel',
   onPick: (name, hex) => { state.paper = hex; state.paperName = name; update(); }
 });
 
